@@ -1,5 +1,6 @@
 import { Card, Form, Button } from "react-bootstrap";
 import { useState } from "react";
+import axios from "axios";
 
 const Login = () => {
     const [state, setState] = useState({
@@ -13,9 +14,24 @@ const Login = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert(`Email: ${state.email} and Password: ${state.password}`);
+        const data = new FormData();
+        data.append("email", state.email);
+        data.append("password", state.password);
+
+        try {
+            const response = await axios.post(
+                `${process.env.MIX_APP_URL}/api/login`,
+                {
+                    email: state.email,
+                    password: state.password,
+                }
+            );
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
