@@ -5,6 +5,7 @@ import axios from "../utils/axios-instance";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { setAuthToken } from "../utils/storage-manage";
+import Loading from "../components/Loading";
 
 const FormDiv = Styled.div`
         min-width: 90vw;
@@ -42,7 +43,7 @@ const Login = () => {
             setErrors({});
             navigate("/");
         } catch (error) {
-            toast.error(error.message ?? "Something went wrong!");
+            toast.error("Error occurred!");
             setErrors(error.response?.data?.errors ?? {});
         }
 
@@ -51,6 +52,7 @@ const Login = () => {
 
     return (
         <>
+            <Loading loadingIs={loading} />
             <div className="d-flex justify-content-center mt-5">
                 <Card>
                     <Card.Header className="text-center">
