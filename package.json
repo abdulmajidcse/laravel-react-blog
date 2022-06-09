@@ -22,9 +22,12 @@
         "react": "^18.1.0",
         "react-bootstrap": "^2.4.0",
         "react-dom": "^18.1.0",
-        "react-router-dom": "^6.3.0"
+        "react-router-dom": "^6.3.0",
+        "react-toastify": "^9.0.4",
+        "styled-components": "^5.3.5"
     },
     "resolutions": {
-        "autoprefixer": "10.4.5"
+        "autoprefixer": "10.4.5",
+        "styled-components": "^5"
     }
 }
