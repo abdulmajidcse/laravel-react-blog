@@ -7,8 +7,6 @@ const LoadingWrapper = Styled.div.attrs()`
     height: 100vh;
     width: 100%;
     position: fixed;
-    left: 0;
-    top: 0;
     z-index: 9999;
     &:hover {
         cursor: no-drop;

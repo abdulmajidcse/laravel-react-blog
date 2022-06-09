@@ -3469,7 +3469,7 @@ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(
 
 
 
-var LoadingWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div.attrs()(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n    background: ", ";\n    opacity: ", ";\n    height: 100vh;\n    width: 100%;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 9999;\n    &:hover {\n        cursor: no-drop;\n    }\n\n    & button:disabled {\n        opacity: 1;\n    }\n"])), function (props) {
+var LoadingWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div.attrs()(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n    background: ", ";\n    opacity: ", ";\n    height: 100vh;\n    width: 100%;\n    position: fixed;\n    z-index: 9999;\n    &:hover {\n        cursor: no-drop;\n    }\n\n    & button:disabled {\n        opacity: 1;\n    }\n"])), function (props) {
   return props.background || "none";
 }, function (props) {
   return props.opacity || "1";
