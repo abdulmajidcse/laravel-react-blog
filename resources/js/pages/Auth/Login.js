@@ -1,11 +1,10 @@
 import { Card, Form, Button } from "react-bootstrap";
 import { useState } from "react";
 import Styled from "styled-components";
-import axios from "../utils/axios-instance";
+import axios from "../../utils/axios-instance";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { setAuthToken } from "../utils/storage-manage";
-import Loading from "../components/Loading";
+import Loading from "../../components/Loading";
 
 const FormDiv = Styled.div`
         min-width: 90vw;
@@ -36,18 +35,21 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post("/login", state);
+            const response = await axios.post("/auth/login", state);
 
-            toast.success("You are logged in!");
-            setAuthToken(response.data?.data?.token);
-            setErrors({});
-            navigate("/");
+            if (response) {
+                toast.success("You are logged in!");
+                localStorage.setItem(
+                    process.env.MIX_AUTH_TOKEN_NAME,
+                    response.data?.data?.token
+                );
+                navigate("/auth");
+            }
         } catch (error) {
             toast.error("Error occurred!");
             setErrors(error.response?.data?.errors ?? {});
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (

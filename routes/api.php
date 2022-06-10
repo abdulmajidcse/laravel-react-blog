@@ -16,14 +16,16 @@ use App\Http\Controllers\Api\CategoryController;
 |
 */
 
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('user', [AuthController::class, 'user']);
-    Route::delete('logout', [AuthController::class, 'logout']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('user', [AuthController::class, 'user']);
+        Route::delete('logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('categories', CategoryController::class);
+        Route::apiResource('categories', CategoryController::class);
 
-    Route::apiResource('posts', PostController::class);
+        Route::apiResource('posts', PostController::class);
+    });
 });
