@@ -3696,23 +3696,26 @@ var UserContextProvider = function UserContextProvider(_ref) {
               return _context.abrupt("return", response);
 
             case 11:
+              setUser(USER);
               return _context.abrupt("return", true);
 
-            case 12:
-              _context.next = 17;
+            case 13:
+              _context.next = 20;
               break;
 
-            case 14:
-              _context.prev = 14;
+            case 15:
+              _context.prev = 15;
               _context.t0 = _context["catch"](1);
+              localStorage.removeItem("react_blog_auth_token");
+              setUser(USER);
               return _context.abrupt("return", _context.t0);
 
-            case 17:
+            case 20:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[1, 14]]);
+      }, _callee, null, [[1, 15]]);
     }));
 
     return function logout() {
@@ -3759,16 +3762,17 @@ var UserContextProvider = function UserContextProvider(_ref) {
               return _context2.abrupt("return", true);
 
             case 12:
-              _context2.next = 18;
+              _context2.next = 19;
               break;
 
             case 14:
               _context2.prev = 14;
               _context2.t0 = _context2["catch"](1);
-              logout(authToken);
+              logout();
+              setUser(USER);
               return _context2.abrupt("return", true);
 
-            case 18:
+            case 19:
             case "end":
               return _context2.stop();
           }

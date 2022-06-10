@@ -24,9 +24,12 @@ export const UserContextProvider = ({ children }) => {
                 setUser(USER);
                 return response;
             } else {
+                setUser(USER);
                 return true;
             }
         } catch (error) {
+            localStorage.removeItem(process.env.MIX_AUTH_TOKEN_NAME);
+            setUser(USER);
             return error;
         }
     };
@@ -46,7 +49,8 @@ export const UserContextProvider = ({ children }) => {
                 return true;
             }
         } catch (error) {
-            logout(authToken);
+            logout();
+            setUser(USER);
             return true;
         }
     };
