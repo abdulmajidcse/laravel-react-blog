@@ -3,12 +3,20 @@ import { useUserContext } from "../../contexts/user-context";
 import Loading from "../Loading";
 import { Navigate } from "react-router-dom";
 import useGuardCheck from "../../hooks/useGuardCheck";
+import AuthHeader from "../Auth/AuthHeader";
 
-export default function Auth() {
+export default function AuthGuardOutlet() {
     const { user } = useUserContext();
     const guardChecked = useGuardCheck();
 
     if (!guardChecked) return <Loading loadingIs={true} />;
 
-    return user.authIs ? <Outlet /> : <Navigate to="/auth/login" />;
+    return user.authIs ? (
+        <>
+            <AuthHeader />
+            <Outlet />
+        </>
+    ) : (
+        <Navigate to="/auth/login" />
+    );
 }

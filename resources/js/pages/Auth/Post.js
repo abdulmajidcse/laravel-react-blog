@@ -1,8 +1,8 @@
-export default function Home() {
+export default function Post() {
     return (
         <>
             <div className="container">
-                <h2 className="bg-danger">Auth Home Page</h2>
+                <h2 className="bg-danger">Auth Post Page</h2>
             </div>
         </>
     );
