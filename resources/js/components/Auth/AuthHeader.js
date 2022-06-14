@@ -1,5 +1,5 @@
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import Loading from "../Loading";
 import { useState } from "react";
 import { useUserContext } from "../../contexts/user-context";
@@ -25,17 +25,14 @@ export default function AuthHeader() {
             <Loading loadingIs={loading} />
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Container>
-                    <NavLink to="/auth" className="navbar-brand">
+                    <Link to="/auth" className="navbar-brand">
                         React Blog
-                    </NavLink>
+                    </Link>
                     <Navbar.Toggle aria-controls="auth-navbar-header" />
                     <Navbar.Collapse id="auth-navbar-header">
                         <Nav className="ms-auto">
                             <NavLink to="/auth" className="nav-link">
                                 Dashboard
-                            </NavLink>
-                            <NavLink to="/auth/post" className="nav-link">
-                                Post
                             </NavLink>
                             <NavDropdown
                                 title={user.name}
