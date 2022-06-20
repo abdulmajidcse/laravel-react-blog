@@ -8,6 +8,7 @@ import AuthGuardOutlet from "./components/Guards/AuthGuardOutlet";
 import GuestGuardOutlet from "./components/Guards/GuestGuardOutlet";
 import FrontendOutlet from "./components/Frontend/FrontendOutlet";
 import Profile from "./pages/Auth/Profile";
+import ChangePassword from "./pages/Auth/ChangePassword";
 
 const InitApp = () => {
     return (
@@ -24,6 +25,7 @@ const InitApp = () => {
                 <Route path="auth" element={<AuthGuardOutlet />}>
                     <Route index element={<Dashboard />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="change-password" element={<ChangePassword />} />
                 </Route>
 
                 {/* Not Found Route */}

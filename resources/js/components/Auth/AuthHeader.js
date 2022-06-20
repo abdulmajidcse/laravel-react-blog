@@ -38,12 +38,18 @@ export default function AuthHeader() {
                                 title={user.name}
                                 id="auth-header-profile"
                             >
-                                <NavLink to="/auth/profile" className="dropdown-item">
+                                <NavLink
+                                    to="/auth/profile"
+                                    className="dropdown-item"
+                                >
                                     Profile
                                 </NavLink>
-                                <NavDropdown.Item href="#">
+                                <NavLink
+                                    to="/auth/change-password"
+                                    className="dropdown-item"
+                                >
                                     Change Password
-                                </NavDropdown.Item>
+                                </NavLink>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item
                                     href="#"

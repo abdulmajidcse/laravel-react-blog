@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Services\RegisterService;
 use App\Services\LoginTokenService;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\ErrorResource;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Resources\SuccessResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use App\Http\Requests\Api\RegisterRequest;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -105,7 +106,17 @@ class AuthController extends Controller
     {
         // request validation
         $validator = Validator::make($request->all(), [
-            'password' => 'required|string|min:8|confirmed',
+            'old_password' => ['required', 'string', function ($attribute, $value, $fail) use ($request) {
+                if (!Hash::check($value, $request->user()->password)) {
+                    $fail('The ' . Str::replace('_', ' ', $attribute) . ' is invalid.');
+                }
+            }],
+            'new_password' => ['required', 'string', Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised(), 'confirmed']
         ]);
 
         // return form validation error with json if error occured
@@ -116,7 +127,7 @@ class AuthController extends Controller
         $data = $validator->validated();
 
         $user = $request->user();
-        $user->password = Hash::make($data['password']);
+        $user->password = Hash::make($data['new_password']);
         $user->save();
 
         $response['message'] = 'Successfully password updated';
