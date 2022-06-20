@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\LoginRequest;
-use App\Http\Requests\Api\RegisterRequest;
-use App\Http\Resources\SuccessResource;
-use App\Http\Resources\UserResource;
-use App\Services\LoginTokenService;
-use App\Services\RegisterService;
 use Illuminate\Http\Request;
+use App\Services\RegisterService;
+use App\Services\LoginTokenService;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\ErrorResource;
+use App\Http\Requests\Api\LoginRequest;
+use App\Http\Resources\SuccessResource;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Api\RegisterRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -64,6 +68,58 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         $response['message'] = 'Successfully Logout!';
+        return new SuccessResource($response);
+    }
+
+    /**
+     * User Profile Update
+     */
+    public function profileUpdate(Request $request)
+    {
+        // request validation
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:180',
+            'email' => 'required|email|max:180|unique:users,email,' . $request->user()->id
+        ]);
+
+        // return form validation error with json if error occured
+        if ($validator->fails()) {
+            return (new ErrorResource($validator->getMessageBag()))->response()->setStatusCode(422);
+        }
+
+        $data = $validator->validated();
+
+        $user = $request->user();
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->save();
+
+        $response['message'] = 'Successfully profile updated';
+        return new SuccessResource($response);
+    }
+
+    /**
+     * User Profile Update
+     */
+    public function changePassword(Request $request)
+    {
+        // request validation
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // return form validation error with json if error occured
+        if ($validator->fails()) {
+            return (new ErrorResource($validator->getMessageBag()))->response()->setStatusCode(422);
+        }
+
+        $data = $validator->validated();
+
+        $user = $request->user();
+        $user->password = Hash::make($data['password']);
+        $user->save();
+
+        $response['message'] = 'Successfully password updated';
         return new SuccessResource($response);
     }
 }

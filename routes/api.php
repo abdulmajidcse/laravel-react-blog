@@ -22,6 +22,8 @@ Route::prefix('auth')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('user', [AuthController::class, 'user']);
+        Route::put('user/profile', [AuthController::class, 'profileUpdate']);
+        Route::put('user/change-password', [AuthController::class, 'changePassword']);
         Route::delete('logout', [AuthController::class, 'logout']);
 
         Route::apiResource('categories', CategoryController::class);

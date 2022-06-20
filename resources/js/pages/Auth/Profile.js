@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useUserContext } from "../../contexts/user-context";
 import { Form, Button } from "react-bootstrap";
+import axios from "../../utils/axios-instance";
+import { toast } from "react-toastify";
+import Loading from "../../components/Loading";
 
 export default function Profile() {
-    const { user } = useUserContext();
+    const { user, login } = useUserContext();
     const [profileEdit, setProfileEdit] = useState(false);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({ name: user.name, email: user.email });
@@ -21,11 +24,36 @@ export default function Profile() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        alert("Form Sumitted!");
+        setLoading(true);
+        setErrors({});
+
+        try {
+            const response = await axios.put("/auth/user/profile", data, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem(
+                        process.env.MIX_AUTH_TOKEN_NAME
+                    )}`,
+                },
+            });
+
+            const updateUserContext = login(
+                localStorage.getItem(process.env.MIX_AUTH_TOKEN_NAME)
+            );
+
+            if (updateUserContext) {
+                setLoading(false);
+                profileEditFormToggle();
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            setErrors(error.response?.data?.errors ?? {});
+            setLoading(false);
+        }
     };
 
     return (
         <>
+            <Loading loadingIs={loading} />
             <div className="container mt-3">
                 <div className="card">
                     <div className="card-header d-block d-md-flex">
@@ -102,7 +130,7 @@ export default function Profile() {
                                     type="submit"
                                     className="w-100"
                                 >
-                                    Login
+                                    Save
                                 </Button>
                             </fieldset>
                         </Form>
