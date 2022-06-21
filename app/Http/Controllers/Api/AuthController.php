@@ -111,12 +111,7 @@ class AuthController extends Controller
                     $fail('The ' . Str::replace('_', ' ', $attribute) . ' is invalid.');
                 }
             }],
-            'new_password' => ['required', 'string', Password::min(8)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols()
-                ->uncompromised(), 'confirmed']
+            'new_password' => 'required|string|min:8|confirmed'
         ]);
 
         // return form validation error with json if error occured

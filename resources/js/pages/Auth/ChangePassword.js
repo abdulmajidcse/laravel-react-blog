@@ -13,15 +13,20 @@ export default function ChangePassword() {
             new_password_confirmation: "",
         },
         validationSchema: Yup.object({
-            old_password: Yup.string().required("Required"),
+            old_password: Yup.string().required(
+                "The old password field is required."
+            ),
             new_password: Yup.string()
-                .min(8, "Must be 8 characters or less")
-                .required("Required"),
+                .min(8, "The new password field must be 8 characters or more.")
+                .required("The new password field is required."),
             new_password_confirmation: Yup.string()
-                .min(8, "Must be 8 characters or less")
-                .required("Required"),
+                .min(
+                    8,
+                    "The new password confirmation field must be 8 characters or more."
+                )
+                .required("The new password confirmation field is required."),
         }),
-        onSubmit: async (values, helpers) => {
+        onSubmit: async (values, formikHelpers) => {
             try {
                 const response = await axios.put(
                     "/auth/user/change-password",
@@ -34,12 +39,12 @@ export default function ChangePassword() {
                         },
                     }
                 );
-                helpers.resetForm();
-                helpers.setSubmitting(false);
+                formikHelpers.resetForm();
+                formikHelpers.setSubmitting(false);
                 toast.success(response.data.message);
             } catch (error) {
-                helpers.setErrors(error.response?.data?.errors);
-                helpers.setSubmitting(false);
+                formikHelpers.setErrors(error.response?.data?.errors);
+                formikHelpers.setSubmitting(false);
             }
         },
     });
@@ -64,11 +69,17 @@ export default function ChangePassword() {
                                         type="password"
                                         name="old_password"
                                         onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                         value={formik.values.old_password}
                                     />
-                                    <div className="text-danger">
-                                        {formik.errors.old_password}
-                                    </div>
+                                    {formik.touched.old_password &&
+                                    formik.errors.old_password ? (
+                                        <div className="text-danger">
+                                            {formik.errors.old_password}
+                                        </div>
+                                    ) : (
+                                        ""
+                                    )}
                                 </Form.Group>
                                 <Form.Group
                                     className="mb-3"
@@ -79,11 +90,17 @@ export default function ChangePassword() {
                                         type="password"
                                         name="new_password"
                                         onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                         value={formik.values.new_password}
                                     />
-                                    <div className="text-danger">
-                                        {formik.errors.new_password}
-                                    </div>
+                                    {formik.touched.new_password &&
+                                    formik.errors.new_password ? (
+                                        <div className="text-danger">
+                                            {formik.errors.new_password}
+                                        </div>
+                                    ) : (
+                                        ""
+                                    )}
                                 </Form.Group>
                                 <Form.Group
                                     className="mb-3"
@@ -94,17 +111,23 @@ export default function ChangePassword() {
                                         type="password"
                                         name="new_password_confirmation"
                                         onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                         value={
                                             formik.values
                                                 .new_password_confirmation
                                         }
                                     />
-                                    <div className="text-danger">
-                                        {
-                                            formik.errors
-                                                .new_password_confirmation
-                                        }
-                                    </div>
+                                    {formik.touched.new_password_confirmation &&
+                                    formik.errors.new_password_confirmation ? (
+                                        <div className="text-danger">
+                                            {
+                                                formik.errors
+                                                    .new_password_confirmation
+                                            }
+                                        </div>
+                                    ) : (
+                                        ""
+                                    )}
                                 </Form.Group>
                                 <Button
                                     variant="primary"

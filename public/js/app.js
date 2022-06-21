@@ -10359,12 +10359,12 @@ function ChangePassword() {
       new_password_confirmation: ""
     },
     validationSchema: yup__WEBPACK_IMPORTED_MODULE_4__.object({
-      old_password: yup__WEBPACK_IMPORTED_MODULE_4__.string().required("Required"),
-      new_password: yup__WEBPACK_IMPORTED_MODULE_4__.string().min(8, "Must be 8 characters or less").required("Required"),
-      new_password_confirmation: yup__WEBPACK_IMPORTED_MODULE_4__.string().min(8, "Must be 8 characters or less").required("Required")
+      old_password: yup__WEBPACK_IMPORTED_MODULE_4__.string().required("The old password field is required."),
+      new_password: yup__WEBPACK_IMPORTED_MODULE_4__.string().min(8, "The new password field must be 8 characters or more.").required("The new password field is required."),
+      new_password_confirmation: yup__WEBPACK_IMPORTED_MODULE_4__.string().min(8, "The new password confirmation field must be 8 characters or more.").required("The new password confirmation field is required.")
     }),
     onSubmit: function () {
-      var _onSubmit = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(values, helpers) {
+      var _onSubmit = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(values, formikHelpers) {
         var response, _error$response, _error$response$data;
 
         return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -10381,8 +10381,8 @@ function ChangePassword() {
 
               case 3:
                 response = _context.sent;
-                helpers.resetForm();
-                helpers.setSubmitting(false);
+                formikHelpers.resetForm();
+                formikHelpers.setSubmitting(false);
                 react_toastify__WEBPACK_IMPORTED_MODULE_1__.toast.success(response.data.message);
                 _context.next = 13;
                 break;
@@ -10390,8 +10390,8 @@ function ChangePassword() {
               case 9:
                 _context.prev = 9;
                 _context.t0 = _context["catch"](0);
-                helpers.setErrors((_error$response = _context.t0.response) === null || _error$response === void 0 ? void 0 : (_error$response$data = _error$response.data) === null || _error$response$data === void 0 ? void 0 : _error$response$data.errors);
-                helpers.setSubmitting(false);
+                formikHelpers.setErrors((_error$response = _context.t0.response) === null || _error$response === void 0 ? void 0 : (_error$response$data = _error$response.data) === null || _error$response$data === void 0 ? void 0 : _error$response$data.errors);
+                formikHelpers.setSubmitting(false);
 
               case 13:
               case "end":
@@ -10436,11 +10436,12 @@ function ChangePassword() {
                   type: "password",
                   name: "old_password",
                   onChange: formik.handleChange,
+                  onBlur: formik.handleBlur,
                   value: formik.values.old_password
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                }), formik.touched.old_password && formik.errors.old_password ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                   className: "text-danger",
                   children: formik.errors.old_password
-                })]
+                }) : ""]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_6__["default"].Group, {
                 className: "mb-3",
                 controlId: "new_password",
@@ -10450,11 +10451,12 @@ function ChangePassword() {
                   type: "password",
                   name: "new_password",
                   onChange: formik.handleChange,
+                  onBlur: formik.handleBlur,
                   value: formik.values.new_password
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                }), formik.touched.new_password && formik.errors.new_password ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                   className: "text-danger",
                   children: formik.errors.new_password
-                })]
+                }) : ""]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_6__["default"].Group, {
                 className: "mb-3",
                 controlId: "new_password_confirmation",
@@ -10464,11 +10466,12 @@ function ChangePassword() {
                   type: "password",
                   name: "new_password_confirmation",
                   onChange: formik.handleChange,
+                  onBlur: formik.handleBlur,
                   value: formik.values.new_password_confirmation
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                }), formik.touched.new_password_confirmation && formik.errors.new_password_confirmation ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                   className: "text-danger",
                   children: formik.errors.new_password_confirmation
-                })]
+                }) : ""]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_7__["default"], {
                 variant: "primary",
                 type: "submit",
