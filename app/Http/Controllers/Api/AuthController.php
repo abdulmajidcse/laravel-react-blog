@@ -13,7 +13,6 @@ use App\Http\Resources\ErrorResource;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Resources\SuccessResource;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
 use App\Http\Requests\Api\RegisterRequest;
 
 class AuthController extends Controller
