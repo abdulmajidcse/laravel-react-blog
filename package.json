@@ -26,6 +26,7 @@
         "react-router-dom": "^6.3.0",
         "react-toastify": "^9.0.4",
         "styled-components": "^5.3.5",
+        "sweetalert": "^2.1.2",
         "yup": "^0.32.11"
     },
     "resolutions": {

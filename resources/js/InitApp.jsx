@@ -11,6 +11,7 @@ import Profile from "./pages/Auth/Profile";
 import ChangePassword from "./pages/Auth/ChangePassword";
 import ForgotPassword from "./pages/Guest/ResetPassword/ForgotPassword";
 import ResetPassword from "./pages/Guest/ResetPassword/ResetPassword";
+import CategoryIndex from "./pages/Auth/Category/CategoryIndex";
 
 const InitApp = () => {
     return (
@@ -36,6 +37,7 @@ const InitApp = () => {
                         path="change-password"
                         element={<ChangePassword />}
                     />
+                    <Route path="categories" element={<CategoryIndex />} />
                 </Route>
 
                 {/* Not Found Route */}
