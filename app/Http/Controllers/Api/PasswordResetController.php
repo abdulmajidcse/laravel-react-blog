@@ -39,7 +39,9 @@ class PasswordResetController extends Controller
         // insert a new token
         $data['token'] = rand(100000, 999999);
         $data['created_at'] = now();
-        DB::table('password_resets')->insert($data);
+        $resetData = $data;
+        unset($resetData['reset_url']);
+        DB::table('password_resets')->insert($resetData);
 
         // send a password reset notification via mail
         $resetUrl = url('auth/reset-password');
