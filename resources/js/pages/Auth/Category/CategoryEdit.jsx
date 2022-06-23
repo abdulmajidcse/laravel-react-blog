@@ -5,12 +5,14 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { Form, Button } from "react-bootstrap";
 import * as Yup from "yup";
-import { useState, useEffect } from "react";
+import useGetModel from "../../../hooks/useGetModel";
 
 export default function CategoryEdit() {
     const { categoryId } = useParams();
-    const [category, setCategory] = useState({});
-    const [loading, setLoading] = useState(true);
+    let category = useGetModel(
+        `/auth/categories/${categoryId}`,
+        localStorage.getItem(process.env.MIX_AUTH_TOKEN_NAME)
+    );
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -33,7 +35,7 @@ export default function CategoryEdit() {
                         },
                     }
                 );
-                setCategory(response.data.data);
+                category = response.data.data;
                 formikHelpers.setSubmitting(false);
                 toast.success(response.data.message);
             } catch (error) {
@@ -43,31 +45,9 @@ export default function CategoryEdit() {
         },
     });
 
-    useEffect(() => {
-        axios
-            .get(`/auth/categories/${categoryId}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem(
-                        process.env.MIX_AUTH_TOKEN_NAME
-                    )}`,
-                },
-            })
-            .then((response) => {
-                setCategory(response.data.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                toast.error(error.message ?? "Failed to load!");
-                setLoading(false);
-            });
-        return () => {
-            setCategory({});
-        };
-    }, [categoryId]);
-
     return (
         <>
-            <Loading loadingIs={formik.isSubmitting || loading} />
+            <Loading loadingIs={formik.isSubmitting || !category.id} />
             <div className="container mt-3">
                 <div className="card">
                     <div className="card-header d-block d-md-flex">

@@ -10309,6 +10309,61 @@ var useUserContext = function useUserContext() {
 
 /***/ }),
 
+/***/ "./resources/js/hooks/useGetModel.js":
+/*!*******************************************!*\
+  !*** ./resources/js/hooks/useGetModel.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ useGetModel)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _utils_axios_instance__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/axios-instance */ "./resources/js/utils/axios-instance.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+function useGetModel(path) {
+  var authToken = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({}),
+      _useState2 = _slicedToArray(_useState, 2),
+      model = _useState2[0],
+      setModel = _useState2[1];
+
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    _utils_axios_instance__WEBPACK_IMPORTED_MODULE_1__["default"].get(path, {
+      headers: {
+        Authorization: "Bearer ".concat(authToken)
+      }
+    }).then(function (response) {
+      setModel(response.data.data);
+    })["catch"](function (error) {
+      setModel({});
+    });
+    return function () {
+      setModel({});
+    };
+  }, []);
+  return model;
+}
+
+/***/ }),
+
 /***/ "./resources/js/hooks/useGuardCheck.js":
 /*!*********************************************!*\
   !*** ./resources/js/hooks/useGuardCheck.js ***!
@@ -10564,8 +10619,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_bootstrap__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-bootstrap */ "./node_modules/react-bootstrap/esm/Form.js");
 /* harmony import */ var react_bootstrap__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react-bootstrap */ "./node_modules/react-bootstrap/esm/Button.js");
 /* harmony import */ var yup__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! yup */ "./node_modules/yup/es/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _hooks_useGetModel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../hooks/useGetModel */ "./resources/js/hooks/useGetModel.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
@@ -10574,18 +10628,6 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
@@ -10604,16 +10646,7 @@ function CategoryEdit() {
   var _useParams = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_7__.useParams)(),
       categoryId = _useParams.categoryId;
 
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)({}),
-      _useState2 = _slicedToArray(_useState, 2),
-      category = _useState2[0],
-      setCategory = _useState2[1];
-
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)(true),
-      _useState4 = _slicedToArray(_useState3, 2),
-      loading = _useState4[0],
-      setLoading = _useState4[1];
-
+  var category = (0,_hooks_useGetModel__WEBPACK_IMPORTED_MODULE_5__["default"])("/auth/categories/".concat(categoryId), localStorage.getItem("react_blog_auth_token"));
   var formik = (0,formik__WEBPACK_IMPORTED_MODULE_3__.useFormik)({
     enableReinitialize: true,
     initialValues: {
@@ -10640,7 +10673,7 @@ function CategoryEdit() {
 
               case 3:
                 response = _context.sent;
-                setCategory(response.data.data);
+                category = response.data.data;
                 formikHelpers.setSubmitting(false);
                 react_toastify__WEBPACK_IMPORTED_MODULE_2__.toast.success(response.data.message);
                 _context.next = 13;
@@ -10667,27 +10700,9 @@ function CategoryEdit() {
       return onSubmit;
     }()
   });
-  (0,react__WEBPACK_IMPORTED_MODULE_5__.useEffect)(function () {
-    _utils_axios_instance__WEBPACK_IMPORTED_MODULE_0__["default"].get("/auth/categories/".concat(categoryId), {
-      headers: {
-        Authorization: "Bearer ".concat(localStorage.getItem("react_blog_auth_token"))
-      }
-    }).then(function (response) {
-      setCategory(response.data.data);
-      setLoading(false);
-    })["catch"](function (error) {
-      var _error$message;
-
-      react_toastify__WEBPACK_IMPORTED_MODULE_2__.toast.error((_error$message = error.message) !== null && _error$message !== void 0 ? _error$message : "Failed to load!");
-      setLoading(false);
-    });
-    return function () {
-      setCategory({});
-    };
-  }, [categoryId]);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.Fragment, {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_components_Loading__WEBPACK_IMPORTED_MODULE_1__["default"], {
-      loadingIs: formik.isSubmitting || loading
+      loadingIs: formik.isSubmitting || !category.id
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
       className: "container mt-3",
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
