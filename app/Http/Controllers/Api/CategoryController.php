@@ -34,7 +34,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        return $formData = $request->validated();
+        $formData = $request->validated();
         $formData['slug'] = Str::slug($formData['name']);
 
         Category::create($formData);
@@ -71,7 +71,8 @@ class CategoryController extends Controller
 
         $category->update($formData);
 
-        return new SuccessResource(['message' => 'Successfully Category updated.']);
+        $response = ['message' => 'Successfully Category updated.', 'data' => $category];
+        return new SuccessResource($response);
     }
 
     /**

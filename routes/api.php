@@ -17,17 +17,17 @@ use App\Http\Controllers\Api\PasswordResetController;
 |
 */
 
-Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
-    Route::post('forgot-password', [PasswordResetController::class, 'forgotPassword']);
-    Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
+Route::prefix('auth')->name('api.auth.')->group(function () {
+    Route::post('register', [AuthController::class, 'register'])->name('register');
+    Route::post('login', [AuthController::class, 'login'])->name('login');
+    Route::post('forgot-password', [PasswordResetController::class, 'forgotPassword'])->name('forgotPassword');
+    Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])->name('resetPassword');
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('user', [AuthController::class, 'user']);
-        Route::put('user/profile', [AuthController::class, 'profileUpdate']);
-        Route::put('user/change-password', [AuthController::class, 'changePassword']);
-        Route::delete('logout', [AuthController::class, 'logout']);
+        Route::get('user', [AuthController::class, 'user'])->name('user');
+        Route::put('user/profile', [AuthController::class, 'profileUpdate'])->name('profileUpdate');
+        Route::put('user/change-password', [AuthController::class, 'changePassword'])->name('changePassword');
+        Route::delete('logout', [AuthController::class, 'logout'])->name('logout');
 
         Route::apiResource('categories', CategoryController::class);
 

@@ -5,6 +5,7 @@ import { Table, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
+import moment from "moment";
 
 export default function CategoryIndex() {
     const [categories, setCategories] = useState([]);
@@ -81,7 +82,7 @@ export default function CategoryIndex() {
                         <h3 className="flex-md-grow-1">Category List</h3>
                         <div>
                             <Link
-                                to="/auth/categories"
+                                to="/auth/categories/create"
                                 className="btn btn-sm btn-primary"
                             >
                                 Add New
@@ -103,15 +104,18 @@ export default function CategoryIndex() {
                                     <tr key={`category_id_${category.id}`}>
                                         <td>{++index}</td>
                                         <td>{category.name}</td>
-                                        <td>{category.created_at}</td>
                                         <td>
-                                            <Button
-                                                variant="primary"
-                                                size="sm"
-                                                className="me-1"
+                                            {moment(category.created_at).format(
+                                                "DD-MM-YYYY LT"
+                                            )}
+                                        </td>
+                                        <td>
+                                            <Link
+                                                to={`/auth/categories/${category.id}/edit`}
+                                                className="btn btn-sm btn-primary me-1"
                                             >
                                                 Edit
-                                            </Button>
+                                            </Link>
                                             <Button
                                                 variant="danger"
                                                 size="sm"
