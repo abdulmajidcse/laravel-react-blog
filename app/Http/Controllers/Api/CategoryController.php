@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Category;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SuccessResource;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Requests\CategoryUpdateRequest;
-use App\Http\Resources\SuccessResource;
 
 class CategoryController extends Controller
 {
@@ -16,9 +17,9 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::latest()->get();
+        $categories = Category::latest()->paginate(intval($request->query('paginate', 10)));
 
         return new SuccessResource([
             'message' => 'All Category',

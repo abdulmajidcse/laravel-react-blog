@@ -2,42 +2,18 @@ import axios from "../../../utils/axios-instance";
 import Loading from "../../../components/Loading";
 import { Link } from "react-router-dom";
 import { Table, Button } from "react-bootstrap";
-import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 import moment from "moment";
+import useGetModel from "../../../hooks/useGetModel";
+import { useState } from "react";
 
 export default function CategoryIndex() {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const loadCategories = async () => {
-            try {
-                const response = await axios.get("/auth/categories", {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem(
-                            process.env.MIX_AUTH_TOKEN_NAME
-                        )}`,
-                    },
-                });
-
-                if (response) {
-                    setCategories(response.data.data);
-                    setLoading(false);
-                }
-            } catch (error) {
-                toast.error(error.message ?? "Failed to load!");
-                setLoading(false);
-            }
-        };
-
-        loadCategories();
-
-        return () => {
-            setCategories([]);
-        };
-    }, []);
+    const [loading, setLoading] = useState(false);
+    let categories = useGetModel(
+        "/auth/categories",
+        localStorage.getItem(process.env.MIX_AUTH_TOKEN_NAME)
+    );
 
     const deleteCategory = (categoryId) => {
         swal({
@@ -57,10 +33,8 @@ export default function CategoryIndex() {
                         },
                     })
                     .then((response) => {
-                        setCategories((prevCategoreis) =>
-                            prevCategoreis.filter(
-                                (prevCategory) => prevCategory.id !== categoryId
-                            )
+                        categories.data = categories.data?.filter(
+                            (category) => category.id !== categoryId
                         );
                         toast.success(response.data.message);
                         setLoading(false);
@@ -75,7 +49,7 @@ export default function CategoryIndex() {
 
     return (
         <>
-            <Loading loadingIs={loading} />
+            <Loading loadingIs={loading || !categories.data} />
             <div className="container mt-3">
                 <div className="card">
                     <div className="card-header d-block d-md-flex">
@@ -100,7 +74,7 @@ export default function CategoryIndex() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {categories.map((category, index) => (
+                                {categories.data?.map((category, index) => (
                                     <tr key={`category_id_${category.id}`}>
                                         <td>{++index}</td>
                                         <td>{category.name}</td>
