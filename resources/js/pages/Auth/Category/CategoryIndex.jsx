@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import swal from "sweetalert";
 import moment from "moment";
 import useGetModel from "../../../hooks/useGetModel";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTable } from "react-table";
 
 export default function CategoryIndex() {
     const [loading, setLoading] = useState(false);
@@ -14,6 +15,61 @@ export default function CategoryIndex() {
         "/auth/categories",
         localStorage.getItem(process.env.MIX_AUTH_TOKEN_NAME)
     );
+    const data = useMemo(
+        () =>
+            categories.data
+                ? categories.data.map((category, index) => ({
+                      sl: ++index,
+                      name: category.name,
+                      created_at: moment(category.created_at).format(
+                          "DD-MM-YYYY LT"
+                      ),
+                      action: (
+                          <>
+                              <Link
+                                  to={`/auth/categories/${category.id}/edit`}
+                                  className="btn btn-sm btn-primary me-1"
+                              >
+                                  Edit
+                              </Link>
+                              <Button
+                                  variant="danger"
+                                  size="sm"
+                                  onClick={() => deleteCategory(category.id)}
+                              >
+                                  Delete
+                              </Button>
+                          </>
+                      ),
+                  }))
+                : [],
+        [categories, categories.data]
+    );
+
+    const columns = useMemo(
+        () => [
+            {
+                Header: "SL",
+                accessor: "sl", // accessor is the "key" in the data
+            },
+            {
+                Header: "Name",
+                accessor: "name",
+            },
+            {
+                Header: "Created At",
+                accessor: "created_at",
+            },
+            {
+                Header: "Action",
+                accessor: "action",
+            },
+        ],
+        []
+    );
+
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+        useTable({ columns, data });
 
     const deleteCategory = (categoryId) => {
         swal({
@@ -64,44 +120,35 @@ export default function CategoryIndex() {
                         </div>
                     </div>
                     <div className="card-body">
-                        <Table responsive bordered hover>
+                        <Table responsive bordered hover {...getTableProps()}>
                             <thead>
-                                <tr>
-                                    <th>SL</th>
-                                    <th>Name</th>
-                                    <th>Created At</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categories.data?.map((category, index) => (
-                                    <tr key={`category_id_${category.id}`}>
-                                        <td>{++index}</td>
-                                        <td>{category.name}</td>
-                                        <td>
-                                            {moment(category.created_at).format(
-                                                "DD-MM-YYYY LT"
-                                            )}
-                                        </td>
-                                        <td>
-                                            <Link
-                                                to={`/auth/categories/${category.id}/edit`}
-                                                className="btn btn-sm btn-primary me-1"
-                                            >
-                                                Edit
-                                            </Link>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
-                                                onClick={() =>
-                                                    deleteCategory(category.id)
-                                                }
-                                            >
-                                                Delete
-                                            </Button>
-                                        </td>
+                                {headerGroups.map((headerGroup) => (
+                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                        {headerGroup.headers.map((column) => (
+                                            <th {...column.getHeaderProps()}>
+                                                {column.render("Header")}
+                                            </th>
+                                        ))}
                                     </tr>
                                 ))}
+                            </thead>
+                            <tbody {...getTableBodyProps()}>
+                                {rows.map((row) => {
+                                    prepareRow(row);
+                                    return (
+                                        <tr {...row.getRowProps()}>
+                                            {row.cells.map((cell) => {
+                                                return (
+                                                    <td
+                                                        {...cell.getCellProps()}
+                                                    >
+                                                        {cell.render("Cell")}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </Table>
                     </div>
