@@ -1,75 +1,53 @@
 import axios from "../../../utils/axios-instance";
 import Loading from "../../../components/Loading";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Table, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 import moment from "moment";
-import useGetModel from "../../../hooks/useGetModel";
-import { useState, useMemo } from "react";
-import { useTable } from "react-table";
+import { useState, useEffect } from "react";
+import ReactPaginate from "react-paginate";
 
 export default function CategoryIndex() {
-    const [loading, setLoading] = useState(false);
-    let categories = useGetModel(
-        "/auth/categories",
-        localStorage.getItem(process.env.MIX_AUTH_TOKEN_NAME)
-    );
-    const data = useMemo(
-        () =>
-            categories.data
-                ? categories.data.map((category, index) => ({
-                      sl: ++index,
-                      name: category.name,
-                      created_at: moment(category.created_at).format(
-                          "DD-MM-YYYY LT"
-                      ),
-                      action: (
-                          <>
-                              <Link
-                                  to={`/auth/categories/${category.id}/edit`}
-                                  className="btn btn-sm btn-primary me-1"
-                              >
-                                  Edit
-                              </Link>
-                              <Button
-                                  variant="danger"
-                                  size="sm"
-                                  onClick={() => deleteCategory(category.id)}
-                              >
-                                  Delete
-                              </Button>
-                          </>
-                      ),
-                  }))
-                : [],
-        [categories, categories.data]
-    );
+    let [searchParams, setSearchParams] = useSearchParams();
+    const [loading, setLoading] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [pageCount, setPageCount] = useState(0);
+    const [itemOffset, setItemOffset] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
 
-    const columns = useMemo(
-        () => [
-            {
-                Header: "SL",
-                accessor: "sl", // accessor is the "key" in the data
-            },
-            {
-                Header: "Name",
-                accessor: "name",
-            },
-            {
-                Header: "Created At",
-                accessor: "created_at",
-            },
-            {
-                Header: "Action",
-                accessor: "action",
-            },
-        ],
-        []
-    );
+    useEffect(() => {
+        setLoading(true);
+        axios
+            .get(
+                `/auth/categories?paginate=4&page=${
+                    searchParams.get("page") ?? 1
+                }`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            process.env.MIX_AUTH_TOKEN_NAME
+                        )}`,
+                    },
+                }
+            )
+            .then((response) => {
+                setCategories(response.data.data);
+                setPageCount(response.data.data.last_page);
+                setItemOffset(response.data.data.from);
+                setCurrentPage(response.data.data.current_page - 1);
+                setLoading(false);
+            })
+            .catch((error) => {
+                setCategories([]);
+                setLoading(false);
+            });
+    }, [searchParams]);
 
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-        useTable({ columns, data });
+    // Invoke when user click to request another page.
+    const handlePageClick = (event) => {
+        setSearchParams({ page: ++event.selected });
+    };
 
     const deleteCategory = (categoryId) => {
         swal({
@@ -89,9 +67,13 @@ export default function CategoryIndex() {
                         },
                     })
                     .then((response) => {
-                        categories.data = categories.data?.filter(
+                        const categoryListUpdated = categories.data?.filter(
                             (category) => category.id !== categoryId
                         );
+                        setCategories((prevCategories) => ({
+                            ...prevCategories,
+                            data: categoryListUpdated,
+                        }));
                         toast.success(response.data.message);
                         setLoading(false);
                     })
@@ -105,7 +87,7 @@ export default function CategoryIndex() {
 
     return (
         <>
-            <Loading loadingIs={loading || !categories.data} />
+            <Loading loadingIs={loading} />
             <div className="container mt-3">
                 <div className="card">
                     <div className="card-header d-block d-md-flex">
@@ -120,37 +102,67 @@ export default function CategoryIndex() {
                         </div>
                     </div>
                     <div className="card-body">
-                        <Table responsive bordered hover {...getTableProps()}>
+                        <Table responsive bordered hover>
                             <thead>
-                                {headerGroups.map((headerGroup) => (
-                                    <tr {...headerGroup.getHeaderGroupProps()}>
-                                        {headerGroup.headers.map((column) => (
-                                            <th {...column.getHeaderProps()}>
-                                                {column.render("Header")}
-                                            </th>
-                                        ))}
+                                <tr>
+                                    <td>SL</td>
+                                    <td>Name</td>
+                                    <td>Created Date</td>
+                                    <td>Action</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {categories.data?.map((category, index) => (
+                                    <tr key={`category_id_${category.id}`}>
+                                        <td>{itemOffset + index}</td>
+                                        <td>{category.name}</td>
+                                        <td>
+                                            {moment(category.created_at).format(
+                                                "DD-MM-YYYY LT"
+                                            )}
+                                        </td>
+                                        <td>
+                                            <Link
+                                                to={`/auth/categories/${category.id}/edit`}
+                                                className="btn btn-sm btn-primary me-1"
+                                            >
+                                                Edit
+                                            </Link>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() =>
+                                                    deleteCategory(category.id)
+                                                }
+                                            >
+                                                Delete
+                                            </Button>
+                                        </td>
                                     </tr>
                                 ))}
-                            </thead>
-                            <tbody {...getTableBodyProps()}>
-                                {rows.map((row) => {
-                                    prepareRow(row);
-                                    return (
-                                        <tr {...row.getRowProps()}>
-                                            {row.cells.map((cell) => {
-                                                return (
-                                                    <td
-                                                        {...cell.getCellProps()}
-                                                    >
-                                                        {cell.render("Cell")}
-                                                    </td>
-                                                );
-                                            })}
-                                        </tr>
-                                    );
-                                })}
                             </tbody>
                         </Table>
+                        <ReactPaginate
+                            containerClassName="pagination justify-content-end"
+                            pageClassName="page-item"
+                            pageLinkClassName="page-link"
+                            activeClassName="active"
+                            activeLinkClassName="active disabled"
+                            disabledClassName="disabled"
+                            disabledLinkClassName="disabled"
+                            previousClassName="page-item"
+                            nextClassName="page-item"
+                            previousLinkClassName="page-link"
+                            nextLinkClassName="page-link"
+                            breakLabel="..."
+                            previousLabel="&laquo;"
+                            nextLabel="&raquo;"
+                            onPageChange={handlePageClick}
+                            pageRangeDisplayed={5}
+                            pageCount={pageCount}
+                            forcePage={currentPage}
+                            renderOnZeroPageCount={null}
+                        />
                     </div>
                 </div>
             </div>
