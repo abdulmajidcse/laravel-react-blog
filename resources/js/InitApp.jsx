@@ -11,7 +11,7 @@ import Profile from "./pages/Auth/Profile";
 import ChangePassword from "./pages/Auth/ChangePassword";
 import ForgotPassword from "./pages/Guest/ResetPassword/ForgotPassword";
 import ResetPassword from "./pages/Guest/ResetPassword/ResetPassword";
-import CategoryIndex from "./pages/Auth/Category/CategoryIndex";
+import CategoryIndexReactTable from "./pages/Auth/Category/CategoryIndexReactTable";
 import CategoryCreate from "./pages/Auth/Category/CategoryCreate";
 import CategoryEdit from "./pages/Auth/Category/CategoryEdit";
 
@@ -39,7 +39,7 @@ const InitApp = () => {
                         path="change-password"
                         element={<ChangePassword />}
                     />
-                    <Route path="categories" element={<CategoryIndex />} />
+                    <Route path="categories" element={<CategoryIndexReactTable />} />
                     <Route path="categories/create" element={<CategoryCreate />} />
                     <Route path="categories/:categoryId/edit" element={<CategoryEdit />} />
                 </Route>
