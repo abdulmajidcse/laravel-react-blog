@@ -6,13 +6,13 @@ import { toast } from "react-toastify";
 import swal from "sweetalert";
 import moment from "moment";
 import { useState, useEffect, useMemo } from "react";
-import { useTable } from "react-table";
+import { useTable, usePagination } from "react-table";
 
 export default function CategoryIndexReactTable() {
     let [searchParams, setSearchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
-    const [pageCount, setPageCount] = useState(0);
+    const [totalPage, setTotalPage] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
 
@@ -42,7 +42,7 @@ export default function CategoryIndexReactTable() {
         () =>
             categories.data
                 ? categories.data.map((category, index) => ({
-                      sl: ++index,
+                      sl: itemOffset + index,
                       name: category.name,
                       created_date: moment(category.created_at).format(
                           "DD-MM-YYYY LT"
@@ -69,15 +69,39 @@ export default function CategoryIndexReactTable() {
         [categories]
     );
 
-    const tableInstance = useTable({ columns, data });
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-        tableInstance;
+    const tableInstance = useTable(
+        {
+            columns,
+            data,
+            initialState: { pageIndex: 0 },
+            manualPagination: true,
+            pageCount: totalPage,
+        },
+        usePagination
+    );
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        prepareRow,
+        page,
+        canPreviousPage,
+        canNextPage,
+        pageOptions,
+        pageCount,
+        gotoPage,
+        nextPage,
+        previousPage,
+        setPageSize,
+        // Get the state from the instance
+        state: { pageIndex, pageSize },
+    } = tableInstance;
 
     useEffect(() => {
         setLoading(true);
         axios
             .get(
-                `/auth/categories?paginate=4&page=${
+                `/auth/categories?paginate=${pageSize}&page=${
                     searchParams.get("page") ?? 1
                 }`,
                 {
@@ -90,16 +114,19 @@ export default function CategoryIndexReactTable() {
             )
             .then((response) => {
                 setCategories(response.data.data);
-                setPageCount(response.data.data.last_page);
+                setTotalPage(response.data.data.last_page);
                 setItemOffset(response.data.data.from);
                 setCurrentPage(response.data.data.current_page - 1);
                 setLoading(false);
+
+                response.data.data.last_page < searchParams.get("page") &&
+                    setSearchParams({ page: 1 });
             })
             .catch((error) => {
                 setCategories([]);
                 setLoading(false);
             });
-    }, [searchParams]);
+    }, [pageSize, searchParams]);
 
     const deleteCategory = (categoryId) => {
         swal({
@@ -156,69 +183,135 @@ export default function CategoryIndexReactTable() {
                     <div className="card-body">
                         <Table responsive bordered hover {...getTableProps()}>
                             <thead>
-                                {
-                                    // Loop over the header rows
-                                    headerGroups.map((headerGroup) => (
-                                        // Apply the header row props
-                                        <tr
-                                            {...headerGroup.getHeaderGroupProps()}
-                                        >
-                                            {
-                                                // Loop over the headers in each row
-                                                headerGroup.headers.map(
-                                                    (column) => (
-                                                        // Apply the header cell props
-                                                        <th
-                                                            {...column.getHeaderProps()}
-                                                        >
-                                                            {
-                                                                // Render the header
-                                                                column.render(
-                                                                    "Header"
-                                                                )
-                                                            }
-                                                        </th>
-                                                    )
-                                                )
-                                            }
-                                        </tr>
-                                    ))
-                                }
+                                {headerGroups.map((headerGroup) => (
+                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                        {headerGroup.headers.map((column) => (
+                                            <th {...column.getHeaderProps()}>
+                                                {column.render("Header")}
+                                                <span>
+                                                    {column.isSorted
+                                                        ? column.isSortedDesc
+                                                            ? " 🔽"
+                                                            : " 🔼"
+                                                        : ""}
+                                                </span>
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))}
                             </thead>
-                            {/* Apply the table body props */}
                             <tbody {...getTableBodyProps()}>
-                                {
-                                    // Loop over the table rows
-                                    rows.map((row) => {
-                                        // Prepare the row for display
-                                        prepareRow(row);
-                                        return (
-                                            // Apply the row props
-                                            <tr {...row.getRowProps()}>
-                                                {
-                                                    // Loop over the rows cells
-                                                    row.cells.map((cell) => {
-                                                        // Apply the cell props
-                                                        return (
-                                                            <td
-                                                                {...cell.getCellProps()}
-                                                            >
-                                                                {
-                                                                    // Render the cell contents
-                                                                    cell.render(
-                                                                        "Cell"
-                                                                    )
-                                                                }
-                                                            </td>
-                                                        );
-                                                    })
-                                                }
-                                            </tr>
-                                        );
-                                    })
-                                }
+                                {page.map((row, i) => {
+                                    prepareRow(row);
+                                    return (
+                                        <tr {...row.getRowProps()}>
+                                            {row.cells.map((cell) => {
+                                                return (
+                                                    <td
+                                                        {...cell.getCellProps()}
+                                                    >
+                                                        {cell.render("Cell")}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                                <tr>
+                                    {loading ? (
+                                        // Use our custom loading state to show a loading indicator
+                                        <td
+                                            colSpan="10000"
+                                            className="text-center"
+                                        >
+                                            Loading...
+                                        </td>
+                                    ) : (
+                                        <td
+                                            colSpan="10000"
+                                            className="text-end"
+                                        >
+                                            Showing {page.length} of{" "}
+                                            {categories.total} results
+                                        </td>
+                                    )}
+                                </tr>
                             </tbody>
                         </Table>
+
+                        <div className="pagination">
+                            <button
+                                onClick={() => {
+                                    gotoPage(0);
+                                    setSearchParams({ page: 1 });
+                                }}
+                                disabled={!canPreviousPage}
+                            >
+                                {"<<"}
+                            </button>{" "}
+                            <button
+                                onClick={() => {
+                                    previousPage();
+                                    setSearchParams({ page: pageIndex });
+                                }}
+                                disabled={!canPreviousPage}
+                            >
+                                {"<"}
+                            </button>{" "}
+                            <button
+                                onClick={() => {
+                                    nextPage();
+                                    setSearchParams({ page: pageIndex + 2 });
+                                }}
+                                disabled={!canNextPage}
+                            >
+                                {">"}
+                            </button>{" "}
+                            <button
+                                onClick={() => {
+                                    gotoPage(pageCount - 1);
+                                    setSearchParams({ page: pageCount });
+                                }}
+                                disabled={!canNextPage}
+                            >
+                                {">>"}
+                            </button>{" "}
+                            <span>
+                                Page{" "}
+                                <strong>
+                                    {pageIndex + 1} of {pageOptions.length}
+                                </strong>{" "}
+                            </span>
+                            <span>
+                                | Go to page:{" "}
+                                <input
+                                    type="number"
+                                    defaultValue={pageIndex + 1}
+                                    onChange={(e) => {
+                                        const page = e.target.value
+                                            ? Number(e.target.value) - 1
+                                            : 0;
+                                        gotoPage(page);
+                                        setSearchParams({ page: page });
+                                    }}
+                                    style={{ width: "100px" }}
+                                    min="1"
+                                    max={pageCount}
+                                />
+                            </span>{" "}
+                            <select
+                                value={pageSize}
+                                onChange={(e) => {
+                                    setPageSize(Number(e.target.value));
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map((pageSize) => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

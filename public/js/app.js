@@ -10830,8 +10830,8 @@ function CategoryIndexReactTable() {
 
   var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)(0),
       _useState6 = _slicedToArray(_useState5, 2),
-      pageCount = _useState6[0],
-      setPageCount = _useState6[1];
+      totalPage = _useState6[0],
+      setTotalPage = _useState6[1];
 
   var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)(0),
       _useState8 = _slicedToArray(_useState7, 2),
@@ -10861,7 +10861,7 @@ function CategoryIndexReactTable() {
   var data = (0,react__WEBPACK_IMPORTED_MODULE_5__.useMemo)(function () {
     return categories.data ? categories.data.map(function (category, index) {
       return {
-        sl: ++index,
+        sl: itemOffset + index,
         name: category.name,
         created_date: moment__WEBPACK_IMPORTED_MODULE_4___default()(category.created_at).format("DD-MM-YYYY LT"),
         action: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
@@ -10883,32 +10883,51 @@ function CategoryIndexReactTable() {
   }, [categories]);
   var tableInstance = (0,react_table__WEBPACK_IMPORTED_MODULE_6__.useTable)({
     columns: columns,
-    data: data
-  });
+    data: data,
+    initialState: {
+      pageIndex: 0
+    },
+    manualPagination: true,
+    pageCount: totalPage
+  }, react_table__WEBPACK_IMPORTED_MODULE_6__.usePagination);
   var getTableProps = tableInstance.getTableProps,
       getTableBodyProps = tableInstance.getTableBodyProps,
       headerGroups = tableInstance.headerGroups,
-      rows = tableInstance.rows,
-      prepareRow = tableInstance.prepareRow;
+      prepareRow = tableInstance.prepareRow,
+      page = tableInstance.page,
+      canPreviousPage = tableInstance.canPreviousPage,
+      canNextPage = tableInstance.canNextPage,
+      pageOptions = tableInstance.pageOptions,
+      pageCount = tableInstance.pageCount,
+      gotoPage = tableInstance.gotoPage,
+      nextPage = tableInstance.nextPage,
+      previousPage = tableInstance.previousPage,
+      setPageSize = tableInstance.setPageSize,
+      _tableInstance$state = tableInstance.state,
+      pageIndex = _tableInstance$state.pageIndex,
+      pageSize = _tableInstance$state.pageSize;
   (0,react__WEBPACK_IMPORTED_MODULE_5__.useEffect)(function () {
     var _searchParams$get;
 
     setLoading(true);
-    _utils_axios_instance__WEBPACK_IMPORTED_MODULE_0__["default"].get("/auth/categories?paginate=4&page=".concat((_searchParams$get = searchParams.get("page")) !== null && _searchParams$get !== void 0 ? _searchParams$get : 1), {
+    _utils_axios_instance__WEBPACK_IMPORTED_MODULE_0__["default"].get("/auth/categories?paginate=".concat(pageSize, "&page=").concat((_searchParams$get = searchParams.get("page")) !== null && _searchParams$get !== void 0 ? _searchParams$get : 1), {
       headers: {
         Authorization: "Bearer ".concat(localStorage.getItem("react_blog_auth_token"))
       }
     }).then(function (response) {
       setCategories(response.data.data);
-      setPageCount(response.data.data.last_page);
+      setTotalPage(response.data.data.last_page);
       setItemOffset(response.data.data.from);
       setCurrentPage(response.data.data.current_page - 1);
       setLoading(false);
+      response.data.data.last_page < searchParams.get("page") && setSearchParams({
+        page: 1
+      });
     })["catch"](function (error) {
       setCategories([]);
       setLoading(false);
     });
-  }, [searchParams]);
+  }, [pageSize, searchParams]);
 
   var deleteCategory = function deleteCategory(categoryId) {
     sweetalert__WEBPACK_IMPORTED_MODULE_3___default()({
@@ -10965,56 +10984,122 @@ function CategoryIndexReactTable() {
               children: "Add New"
             })
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
           className: "card-body",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"], _objectSpread(_objectSpread({
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"], _objectSpread(_objectSpread({
             responsive: true,
             bordered: true,
             hover: true
           }, getTableProps()), {}, {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("thead", {
-              children: // Loop over the header rows
-              headerGroups.map(function (headerGroup) {
-                return (
-                  /*#__PURE__*/
-                  // Apply the header row props
-                  (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", _objectSpread(_objectSpread({}, headerGroup.getHeaderGroupProps()), {}, {
-                    children: // Loop over the headers in each row
-                    headerGroup.headers.map(function (column) {
-                      return (
-                        /*#__PURE__*/
-                        // Apply the header cell props
-                        (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("th", _objectSpread(_objectSpread({}, column.getHeaderProps()), {}, {
-                          children: // Render the header
-                          column.render("Header")
-                        }))
-                      );
-                    })
-                  }))
-                );
+              children: headerGroups.map(function (headerGroup) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", _objectSpread(_objectSpread({}, headerGroup.getHeaderGroupProps()), {}, {
+                  children: headerGroup.headers.map(function (column) {
+                    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("th", _objectSpread(_objectSpread({}, column.getHeaderProps()), {}, {
+                      children: [column.render("Header"), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                        children: column.isSorted ? column.isSortedDesc ? " 🔽" : " 🔼" : ""
+                      })]
+                    }));
+                  })
+                }));
               })
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tbody", _objectSpread(_objectSpread({}, getTableBodyProps()), {}, {
-              children: // Loop over the table rows
-              rows.map(function (row) {
-                // Prepare the row for display
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("tbody", _objectSpread(_objectSpread({}, getTableBodyProps()), {}, {
+              children: [page.map(function (row, i) {
                 prepareRow(row);
-                return (
-                  /*#__PURE__*/
-                  // Apply the row props
-                  (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", _objectSpread(_objectSpread({}, row.getRowProps()), {}, {
-                    children: // Loop over the rows cells
-                    row.cells.map(function (cell) {
-                      // Apply the cell props
-                      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("td", _objectSpread(_objectSpread({}, cell.getCellProps()), {}, {
-                        children: // Render the cell contents
-                        cell.render("Cell")
-                      }));
-                    })
-                  }))
-                );
-              })
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", _objectSpread(_objectSpread({}, row.getRowProps()), {}, {
+                  children: row.cells.map(function (cell) {
+                    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("td", _objectSpread(_objectSpread({}, cell.getCellProps()), {}, {
+                      children: cell.render("Cell")
+                    }));
+                  })
+                }));
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", {
+                children: loading ?
+                /*#__PURE__*/
+                // Use our custom loading state to show a loading indicator
+                (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("td", {
+                  colSpan: "10000",
+                  className: "text-center",
+                  children: "Loading..."
+                }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("td", {
+                  colSpan: "10000",
+                  className: "text-end",
+                  children: ["Showing ", page.length, " of", " ", categories.total, " results"]
+                })
+              })]
             }))]
-          }))
+          })), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+            className: "pagination",
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+              onClick: function onClick() {
+                gotoPage(0);
+                setSearchParams({
+                  page: 1
+                });
+              },
+              disabled: !canPreviousPage,
+              children: "<<"
+            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+              onClick: function onClick() {
+                previousPage();
+                setSearchParams({
+                  page: pageIndex
+                });
+              },
+              disabled: !canPreviousPage,
+              children: "<"
+            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+              onClick: function onClick() {
+                nextPage();
+                setSearchParams({
+                  page: pageIndex + 2
+                });
+              },
+              disabled: !canNextPage,
+              children: ">"
+            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+              onClick: function onClick() {
+                gotoPage(pageCount - 1);
+                setSearchParams({
+                  page: pageCount
+                });
+              },
+              disabled: !canNextPage,
+              children: ">>"
+            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("span", {
+              children: ["Page", " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("strong", {
+                children: [pageIndex + 1, " of ", pageOptions.length]
+              }), " "]
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("span", {
+              children: ["| Go to page:", " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("input", {
+                type: "number",
+                defaultValue: pageIndex + 1,
+                onChange: function onChange(e) {
+                  var page = e.target.value ? Number(e.target.value) - 1 : 0;
+                  gotoPage(page);
+                  setSearchParams({
+                    page: page
+                  });
+                },
+                style: {
+                  width: "100px"
+                },
+                min: "1",
+                max: pageCount
+              })]
+            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("select", {
+              value: pageSize,
+              onChange: function onChange(e) {
+                setPageSize(Number(e.target.value));
+              },
+              children: [10, 20, 30, 40, 50].map(function (pageSize) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("option", {
+                  value: pageSize,
+                  children: ["Show ", pageSize]
+                }, pageSize);
+              })
+            })]
+          })]
         })]
       })
     })]
