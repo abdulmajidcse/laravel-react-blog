@@ -10838,11 +10838,6 @@ function CategoryIndexReactTable() {
       itemOffset = _useState8[0],
       setItemOffset = _useState8[1];
 
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)(0),
-      _useState10 = _slicedToArray(_useState9, 2),
-      currentPage = _useState10[0],
-      setCurrentPage = _useState10[1];
-
   var columns = (0,react__WEBPACK_IMPORTED_MODULE_5__.useMemo)(function () {
     return [{
       Header: "SL",
@@ -10885,7 +10880,7 @@ function CategoryIndexReactTable() {
     columns: columns,
     data: data,
     initialState: {
-      pageIndex: 0
+      pageIndex: searchParams.has("page") ? searchParams.get("page") - 1 : 0
     },
     manualPagination: true,
     pageCount: totalPage
@@ -10918,7 +10913,6 @@ function CategoryIndexReactTable() {
       setCategories(response.data.data);
       setTotalPage(response.data.data.last_page);
       setItemOffset(response.data.data.from);
-      setCurrentPage(response.data.data.current_page - 1);
       setLoading(false);
       response.data.data.last_page < searchParams.get("page") && setSearchParams({
         page: 1
@@ -10986,7 +10980,22 @@ function CategoryIndexReactTable() {
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
           className: "card-body",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"], _objectSpread(_objectSpread({
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+            className: "mb-1",
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("select", {
+              value: pageSize,
+              onChange: function onChange(e) {
+                setPageSize(Number(e.target.value));
+              },
+              className: "form-control d-inline w-auto",
+              children: [10, 20, 30, 40, 50].map(function (pageSize) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("option", {
+                  value: pageSize,
+                  children: ["Show ", pageSize, " Rows"]
+                }, pageSize);
+              })
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"], _objectSpread(_objectSpread({
             responsive: true,
             bordered: true,
             hover: true
@@ -11003,8 +11012,8 @@ function CategoryIndexReactTable() {
                   })
                 }));
               })
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("tbody", _objectSpread(_objectSpread({}, getTableBodyProps()), {}, {
-              children: [page.map(function (row, i) {
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tbody", _objectSpread(_objectSpread({}, getTableBodyProps()), {}, {
+              children: page.map(function (row, i) {
                 prepareRow(row);
                 return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", _objectSpread(_objectSpread({}, row.getRowProps()), {}, {
                   children: row.cells.map(function (cell) {
@@ -11013,90 +11022,87 @@ function CategoryIndexReactTable() {
                     }));
                   })
                 }));
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("tr", {
-                children: loading ?
-                /*#__PURE__*/
-                // Use our custom loading state to show a loading indicator
-                (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("td", {
-                  colSpan: "10000",
-                  className: "text-center",
-                  children: "Loading..."
-                }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("td", {
-                  colSpan: "10000",
-                  className: "text-end",
-                  children: ["Showing ", page.length, " of", " ", categories.total, " results"]
-                })
-              })]
+              })
             }))]
           })), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
-            className: "pagination",
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
-              onClick: function onClick() {
-                gotoPage(0);
-                setSearchParams({
-                  page: 1
-                });
-              },
-              disabled: !canPreviousPage,
-              children: "<<"
-            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
-              onClick: function onClick() {
-                previousPage();
-                setSearchParams({
-                  page: pageIndex
-                });
-              },
-              disabled: !canPreviousPage,
-              children: "<"
-            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
-              onClick: function onClick() {
-                nextPage();
-                setSearchParams({
-                  page: pageIndex + 2
-                });
-              },
-              disabled: !canNextPage,
-              children: ">"
-            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
-              onClick: function onClick() {
-                gotoPage(pageCount - 1);
-                setSearchParams({
-                  page: pageCount
-                });
-              },
-              disabled: !canNextPage,
-              children: ">>"
-            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("span", {
-              children: ["Page", " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("strong", {
-                children: [pageIndex + 1, " of ", pageOptions.length]
-              }), " "]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("span", {
-              children: ["| Go to page:", " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("input", {
+            className: "row",
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+              className: "col-md-6 mb-md-0 mb-1",
+              children: ["Page:", " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("input", {
                 type: "number",
-                defaultValue: pageIndex + 1,
+                value: pageIndex + 1,
                 onChange: function onChange(e) {
-                  var page = e.target.value ? Number(e.target.value) - 1 : 0;
+                  var page = e.target.value ? Number(e.target.value) - 1 : 1;
                   gotoPage(page);
                   setSearchParams({
-                    page: page
+                    page: page + 1
                   });
                 },
-                style: {
-                  width: "100px"
-                },
+                className: "form-control d-inline w-auto me-1",
                 min: "1",
                 max: pageCount
-              })]
-            }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("select", {
-              value: pageSize,
-              onChange: function onChange(e) {
-                setPageSize(Number(e.target.value));
-              },
-              children: [10, 20, 30, 40, 50].map(function (pageSize) {
-                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("option", {
-                  value: pageSize,
-                  children: ["Show ", pageSize]
-                }, pageSize);
+              }), "of ", pageOptions.length]
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+              className: "col-md-6",
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("ul", {
+                className: "pagination float-md-end",
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("li", {
+                  className: "page-item ".concat(!canPreviousPage && "disabled"),
+                  title: "First Page",
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+                    onClick: function onClick() {
+                      gotoPage(0);
+                      setSearchParams({
+                        page: 1
+                      });
+                    },
+                    disabled: !canPreviousPage,
+                    className: "page-link",
+                    children: "<<"
+                  })
+                }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("li", {
+                  className: "page-item ".concat(!canPreviousPage && "disabled"),
+                  title: "Previous Page",
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+                    onClick: function onClick() {
+                      previousPage();
+                      setSearchParams({
+                        page: pageIndex
+                      });
+                    },
+                    disabled: !canPreviousPage,
+                    className: "page-link",
+                    children: "<"
+                  })
+                }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("li", {
+                  className: "page-item ".concat(!canNextPage && "disabled"),
+                  title: "Next Page",
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+                    onClick: function onClick() {
+                      nextPage();
+                      setSearchParams({
+                        page: pageIndex + 2
+                      });
+                    },
+                    disabled: !canNextPage,
+                    className: "page-link",
+                    children: ">"
+                  })
+                }), " ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("li", {
+                  className: "page-item ".concat(!canNextPage && "disabled"),
+                  title: "Last Page",
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("button", {
+                    onClick: function onClick() {
+                      gotoPage(pageCount - 1);
+                      setSearchParams({
+                        page: pageCount
+                      });
+                    },
+                    disabled: !canNextPage,
+                    className: "page-link",
+                    children: ">>"
+                  })
+                }), " "]
               })
             })]
           })]

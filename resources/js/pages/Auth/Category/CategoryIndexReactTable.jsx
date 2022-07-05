@@ -14,7 +14,6 @@ export default function CategoryIndexReactTable() {
     const [categories, setCategories] = useState([]);
     const [totalPage, setTotalPage] = useState(0);
     const [itemOffset, setItemOffset] = useState(0);
-    const [currentPage, setCurrentPage] = useState(0);
 
     const columns = useMemo(
         () => [
@@ -73,7 +72,11 @@ export default function CategoryIndexReactTable() {
         {
             columns,
             data,
-            initialState: { pageIndex: 0 },
+            initialState: {
+                pageIndex: searchParams.has("page")
+                    ? searchParams.get("page") - 1
+                    : 0,
+            },
             manualPagination: true,
             pageCount: totalPage,
         },
@@ -116,7 +119,6 @@ export default function CategoryIndexReactTable() {
                 setCategories(response.data.data);
                 setTotalPage(response.data.data.last_page);
                 setItemOffset(response.data.data.from);
-                setCurrentPage(response.data.data.current_page - 1);
                 setLoading(false);
 
                 response.data.data.last_page < searchParams.get("page") &&
@@ -181,6 +183,21 @@ export default function CategoryIndexReactTable() {
                         </div>
                     </div>
                     <div className="card-body">
+                        <div className="mb-1">
+                            <select
+                                value={pageSize}
+                                onChange={(e) => {
+                                    setPageSize(Number(e.target.value));
+                                }}
+                                className="form-control d-inline w-auto"
+                            >
+                                {[10, 20, 30, 40, 50].map((pageSize) => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize} Rows
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <Table responsive bordered hover {...getTableProps()}>
                             <thead>
                                 {headerGroups.map((headerGroup) => (
@@ -217,100 +234,106 @@ export default function CategoryIndexReactTable() {
                                         </tr>
                                     );
                                 })}
-                                <tr>
-                                    {loading ? (
-                                        // Use our custom loading state to show a loading indicator
-                                        <td
-                                            colSpan="10000"
-                                            className="text-center"
-                                        >
-                                            Loading...
-                                        </td>
-                                    ) : (
-                                        <td
-                                            colSpan="10000"
-                                            className="text-end"
-                                        >
-                                            Showing {page.length} of{" "}
-                                            {categories.total} results
-                                        </td>
-                                    )}
-                                </tr>
                             </tbody>
                         </Table>
 
-                        <div className="pagination">
-                            <button
-                                onClick={() => {
-                                    gotoPage(0);
-                                    setSearchParams({ page: 1 });
-                                }}
-                                disabled={!canPreviousPage}
-                            >
-                                {"<<"}
-                            </button>{" "}
-                            <button
-                                onClick={() => {
-                                    previousPage();
-                                    setSearchParams({ page: pageIndex });
-                                }}
-                                disabled={!canPreviousPage}
-                            >
-                                {"<"}
-                            </button>{" "}
-                            <button
-                                onClick={() => {
-                                    nextPage();
-                                    setSearchParams({ page: pageIndex + 2 });
-                                }}
-                                disabled={!canNextPage}
-                            >
-                                {">"}
-                            </button>{" "}
-                            <button
-                                onClick={() => {
-                                    gotoPage(pageCount - 1);
-                                    setSearchParams({ page: pageCount });
-                                }}
-                                disabled={!canNextPage}
-                            >
-                                {">>"}
-                            </button>{" "}
-                            <span>
-                                Page{" "}
-                                <strong>
-                                    {pageIndex + 1} of {pageOptions.length}
-                                </strong>{" "}
-                            </span>
-                            <span>
-                                | Go to page:{" "}
+                        <div className="row">
+                            <div className="col-md-6 mb-md-0 mb-1">
+                                Page:{" "}
                                 <input
                                     type="number"
-                                    defaultValue={pageIndex + 1}
+                                    value={pageIndex + 1}
                                     onChange={(e) => {
                                         const page = e.target.value
                                             ? Number(e.target.value) - 1
-                                            : 0;
+                                            : 1;
                                         gotoPage(page);
-                                        setSearchParams({ page: page });
+                                        setSearchParams({ page: page + 1 });
                                     }}
-                                    style={{ width: "100px" }}
+                                    className="form-control d-inline w-auto me-1"
                                     min="1"
                                     max={pageCount}
                                 />
-                            </span>{" "}
-                            <select
-                                value={pageSize}
-                                onChange={(e) => {
-                                    setPageSize(Number(e.target.value));
-                                }}
-                            >
-                                {[10, 20, 30, 40, 50].map((pageSize) => (
-                                    <option key={pageSize} value={pageSize}>
-                                        Show {pageSize}
-                                    </option>
-                                ))}
-                            </select>
+                                of {pageOptions.length}
+                            </div>
+                            <div className="col-md-6">
+                                <ul className="pagination float-md-end">
+                                    <li
+                                        className={`page-item ${
+                                            !canPreviousPage && "disabled"
+                                        }`}
+                                        title="First Page"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                gotoPage(0);
+                                                setSearchParams({ page: 1 });
+                                            }}
+                                            disabled={!canPreviousPage}
+                                            className="page-link"
+                                        >
+                                            {"<<"}
+                                        </button>
+                                    </li>{" "}
+                                    <li
+                                        className={`page-item ${
+                                            !canPreviousPage && "disabled"
+                                        }`}
+                                        title="Previous Page"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                previousPage();
+                                                setSearchParams({
+                                                    page: pageIndex,
+                                                });
+                                            }}
+                                            disabled={!canPreviousPage}
+                                            className="page-link"
+                                        >
+                                            {"<"}
+                                        </button>
+                                    </li>{" "}
+                                    <li
+                                        className={`page-item ${
+                                            !canNextPage && "disabled"
+                                        }`}
+                                        title="Next Page"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                nextPage();
+                                                setSearchParams({
+                                                    page: pageIndex + 2,
+                                                });
+                                            }}
+                                            disabled={!canNextPage}
+                                            className="page-link"
+                                        >
+                                            {">"}
+                                        </button>
+                                    </li>{" "}
+                                    <li
+                                        className={`page-item ${
+                                            !canNextPage && "disabled"
+                                        }`}
+                                        title="Last Page"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                gotoPage(pageCount - 1);
+                                                setSearchParams({
+                                                    page: pageCount,
+                                                });
+                                            }}
+                                            disabled={!canNextPage}
+                                            className="page-link"
+                                        >
+                                            {">>"}
+                                        </button>
+                                    </li>{" "}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
