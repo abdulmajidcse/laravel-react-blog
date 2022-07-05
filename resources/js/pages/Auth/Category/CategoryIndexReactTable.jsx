@@ -272,7 +272,9 @@ export default function CategoryIndexReactTable() {
                                             disabled={!canPreviousPage}
                                             className="page-link"
                                         >
-                                            {"<<"}
+                                            <span aria-hidden="true">
+                                                &laquo;
+                                            </span>
                                         </button>
                                     </li>{" "}
                                     <li
@@ -291,7 +293,7 @@ export default function CategoryIndexReactTable() {
                                             disabled={!canPreviousPage}
                                             className="page-link"
                                         >
-                                            {"<"}
+                                            Previous
                                         </button>
                                     </li>{" "}
                                     <li
@@ -310,7 +312,7 @@ export default function CategoryIndexReactTable() {
                                             disabled={!canNextPage}
                                             className="page-link"
                                         >
-                                            {">"}
+                                            Next
                                         </button>
                                     </li>{" "}
                                     <li
@@ -329,7 +331,9 @@ export default function CategoryIndexReactTable() {
                                             disabled={!canNextPage}
                                             className="page-link"
                                         >
-                                            {">>"}
+                                            <span aria-hidden="true">
+                                                &raquo;
+                                            </span>
                                         </button>
                                     </li>{" "}
                                 </ul>
