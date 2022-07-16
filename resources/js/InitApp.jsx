@@ -14,6 +14,7 @@ import ResetPassword from "./pages/Guest/ResetPassword/ResetPassword";
 import CategoryIndexReactTable from "./pages/Auth/Category/CategoryIndexReactTable";
 import CategoryCreate from "./pages/Auth/Category/CategoryCreate";
 import CategoryEdit from "./pages/Auth/Category/CategoryEdit";
+import PostCreate from "./pages/Auth/Post/PostCreate";
 
 const InitApp = () => {
     return (
@@ -39,9 +40,12 @@ const InitApp = () => {
                         path="change-password"
                         element={<ChangePassword />}
                     />
+                    {/* categories routes */}
                     <Route path="categories" element={<CategoryIndexReactTable />} />
                     <Route path="categories/create" element={<CategoryCreate />} />
                     <Route path="categories/:categoryId/edit" element={<CategoryEdit />} />
+                    {/* posts routes */}
+                    <Route path="posts/create" element={<PostCreate />} />
                 </Route>
 
                 {/* Not Found Route */}

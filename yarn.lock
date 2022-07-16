@@ -1105,6 +1105,14 @@
     uncontrollable "^7.2.1"
     warning "^4.0.3"
 
+"@tinymce/tinymce-react@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-4.1.0.tgz#e2a5e289dc1af03837365bebe969b1a722bf6d99"
+  integrity sha512-7qXheXhyY9a8mY5tXQUz3BFq+Z4TQ7zd/OIaKasbVzojkjCw3VWdwFhHOEcwmDDprepgQwECsYqe3AGOtehfFg==
+  dependencies:
+    prop-types "^15.6.2"
+    tinymce "^6.0.0 || ^5.5.1"
+
 "@trysound/sax@0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"
@@ -5236,6 +5244,11 @@ tiny-warning@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tiny-warning/-/tiny-warning-1.0.3.tgz#94a30db453df4c643d0fd566060d60a875d84754"
   integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==
+
+"tinymce@^6.0.0 || ^5.5.1":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-6.1.0.tgz#a5e13307646f2e6e1fd2923dcb664647afe3a93c"
+  integrity sha512-IdSdMlmuyhpEpUuabhBUaRC2NzZZxP2/CO/F+/54kTaAifB1Et5mKEty03pJYZxl6GBdFgclKRA2UU5JKJtJbA==
 
 to-arraybuffer@^1.0.0:
   version "1.0.1"

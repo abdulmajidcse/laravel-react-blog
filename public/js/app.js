@@ -7094,6 +7094,713 @@ function useWindow() {
 
 /***/ }),
 
+/***/ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/ScriptLoader.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/ScriptLoader.js ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ScriptLoader": () => (/* binding */ ScriptLoader)
+/* harmony export */ });
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Utils */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/Utils.js");
+/**
+ * Copyright (c) 2017-present, Ephox, Inc.
+ *
+ * This source code is licensed under the Apache 2 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+var createState = function () { return ({
+    listeners: [],
+    scriptId: (0,_Utils__WEBPACK_IMPORTED_MODULE_0__.uuid)('tiny-script'),
+    scriptLoading: false,
+    scriptLoaded: false
+}); };
+var CreateScriptLoader = function () {
+    var state = createState();
+    var injectScriptTag = function (scriptId, doc, url, async, defer, callback) {
+        var scriptTag = doc.createElement('script');
+        scriptTag.referrerPolicy = 'origin';
+        scriptTag.type = 'application/javascript';
+        scriptTag.id = scriptId;
+        scriptTag.src = url;
+        scriptTag.async = async;
+        scriptTag.defer = defer;
+        var handler = function () {
+            scriptTag.removeEventListener('load', handler);
+            callback();
+        };
+        scriptTag.addEventListener('load', handler);
+        if (doc.head) {
+            doc.head.appendChild(scriptTag);
+        }
+    };
+    var load = function (doc, url, async, defer, delay, callback) {
+        var scriptTagInjection = function () { return injectScriptTag(state.scriptId, doc, url, async, defer, function () {
+            state.listeners.forEach(function (fn) { return fn(); });
+            state.scriptLoaded = true;
+        }); };
+        if (state.scriptLoaded) {
+            callback();
+        }
+        else {
+            state.listeners.push(callback);
+            if (!state.scriptLoading) {
+                state.scriptLoading = true;
+                if (delay > 0) {
+                    setTimeout(scriptTagInjection, delay);
+                }
+                else {
+                    scriptTagInjection();
+                }
+            }
+        }
+    };
+    // Only to be used by tests.
+    var reinitialize = function () {
+        state = createState();
+    };
+    return {
+        load: load,
+        reinitialize: reinitialize
+    };
+};
+var ScriptLoader = CreateScriptLoader();
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/TinyMCE.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/TinyMCE.js ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "getTinymce": () => (/* binding */ getTinymce)
+/* harmony export */ });
+/**
+ * Copyright (c) 2017-present, Ephox, Inc.
+ *
+ * This source code is licensed under the Apache 2 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+var getGlobal = function () { return (typeof window !== 'undefined' ? window : __webpack_require__.g); };
+var getTinymce = function () {
+    var global = getGlobal();
+    return global && global.tinymce ? global.tinymce : null;
+};
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/Utils.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/Utils.js ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "configHandlers": () => (/* binding */ configHandlers),
+/* harmony export */   "configHandlers2": () => (/* binding */ configHandlers2),
+/* harmony export */   "isBeforeInputEventAvailable": () => (/* binding */ isBeforeInputEventAvailable),
+/* harmony export */   "isFunction": () => (/* binding */ isFunction),
+/* harmony export */   "isInDoc": () => (/* binding */ isInDoc),
+/* harmony export */   "isTextareaOrInput": () => (/* binding */ isTextareaOrInput),
+/* harmony export */   "mergePlugins": () => (/* binding */ mergePlugins),
+/* harmony export */   "setMode": () => (/* binding */ setMode),
+/* harmony export */   "uuid": () => (/* binding */ uuid)
+/* harmony export */ });
+/* harmony import */ var _components_EditorPropTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/EditorPropTypes */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/EditorPropTypes.js");
+/**
+ * Copyright (c) 2017-present, Ephox, Inc.
+ *
+ * This source code is licensed under the Apache 2 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+var isFunction = function (x) { return typeof x === 'function'; };
+var isEventProp = function (name) { return name in _components_EditorPropTypes__WEBPACK_IMPORTED_MODULE_0__.eventPropTypes; };
+var eventAttrToEventName = function (attrName) { return attrName.substr(2); };
+var configHandlers2 = function (handlerLookup, on, off, adapter, prevProps, props, boundHandlers) {
+    var prevEventKeys = Object.keys(prevProps).filter(isEventProp);
+    var currEventKeys = Object.keys(props).filter(isEventProp);
+    var removedKeys = prevEventKeys.filter(function (key) { return props[key] === undefined; });
+    var addedKeys = currEventKeys.filter(function (key) { return prevProps[key] === undefined; });
+    removedKeys.forEach(function (key) {
+        // remove event handler
+        var eventName = eventAttrToEventName(key);
+        var wrappedHandler = boundHandlers[eventName];
+        off(eventName, wrappedHandler);
+        delete boundHandlers[eventName];
+    });
+    addedKeys.forEach(function (key) {
+        var wrappedHandler = adapter(handlerLookup, key);
+        var eventName = eventAttrToEventName(key);
+        boundHandlers[eventName] = wrappedHandler;
+        on(eventName, wrappedHandler);
+    });
+};
+var configHandlers = function (editor, prevProps, props, boundHandlers, lookup) {
+    return configHandlers2(lookup, editor.on.bind(editor), editor.off.bind(editor), 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    function (handlerLookup, key) { return function (e) { var _a; return (_a = handlerLookup(key)) === null || _a === void 0 ? void 0 : _a(e, editor); }; }, prevProps, props, boundHandlers);
+};
+var unique = 0;
+var uuid = function (prefix) {
+    var time = Date.now();
+    var random = Math.floor(Math.random() * 1000000000);
+    unique++;
+    return prefix + '_' + random + unique + String(time);
+};
+var isTextareaOrInput = function (element) {
+    return element !== null && (element.tagName.toLowerCase() === 'textarea' || element.tagName.toLowerCase() === 'input');
+};
+var normalizePluginArray = function (plugins) {
+    if (typeof plugins === 'undefined' || plugins === '') {
+        return [];
+    }
+    return Array.isArray(plugins) ? plugins : plugins.split(' ');
+};
+// eslint-disable-next-line max-len
+var mergePlugins = function (initPlugins, inputPlugins) { return normalizePluginArray(initPlugins).concat(normalizePluginArray(inputPlugins)); };
+var isBeforeInputEventAvailable = function () { return window.InputEvent && typeof InputEvent.prototype.getTargetRanges === 'function'; };
+var isInDoc = function (elem) {
+    if (!('isConnected' in Node.prototype)) {
+        // Fallback for IE and old Edge
+        var current = elem;
+        var parent_1 = elem.parentNode;
+        while (parent_1 != null) {
+            current = parent_1;
+            parent_1 = current.parentNode;
+        }
+        return current === elem.ownerDocument;
+    }
+    return elem.isConnected;
+};
+var setMode = function (editor, mode) {
+    if (editor !== undefined) {
+        if (editor.mode != null && typeof editor.mode === 'object' && typeof editor.mode.set === 'function') {
+            editor.mode.set(mode);
+        }
+        else { // support TinyMCE 4
+            editor.setMode(mode);
+        }
+    }
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/Editor.js":
+/*!*************************************************************************************!*\
+  !*** ./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/Editor.js ***!
+  \*************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Editor": () => (/* binding */ Editor)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ScriptLoader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../ScriptLoader */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/ScriptLoader.js");
+/* harmony import */ var _TinyMCE__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../TinyMCE */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/TinyMCE.js");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Utils */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/Utils.js");
+/* harmony import */ var _EditorPropTypes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EditorPropTypes */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/EditorPropTypes.js");
+/**
+ * Copyright (c) 2017-present, Ephox, Inc.
+ *
+ * This source code is licensed under the Apache 2 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+
+
+
+
+
+var changeEvents = function () { var _a, _b, _c; return ((_c = (_b = (_a = (0,_TinyMCE__WEBPACK_IMPORTED_MODULE_2__.getTinymce)()) === null || _a === void 0 ? void 0 : _a.Env) === null || _b === void 0 ? void 0 : _b.browser) === null || _c === void 0 ? void 0 : _c.isIE()) ? 'change keyup compositionend setcontent' : 'change input compositionend setcontent'; };
+var beforeInputEvent = function () { return (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isBeforeInputEventAvailable)() ? 'beforeinput SelectionChange' : 'SelectionChange'; };
+var Editor = /** @class */ (function (_super) {
+    __extends(Editor, _super);
+    function Editor(props) {
+        var _this = this;
+        var _a, _b, _c;
+        _this = _super.call(this, props) || this;
+        _this.rollbackTimer = undefined;
+        _this.valueCursor = undefined;
+        _this.rollbackChange = function () {
+            var editor = _this.editor;
+            var value = _this.props.value;
+            if (editor && value && value !== _this.currentContent) {
+                editor.undoManager.ignore(function () {
+                    editor.setContent(value);
+                    // only restore cursor on inline editors when they are focused
+                    // as otherwise it will cause a focus grab
+                    if (_this.valueCursor && (!_this.inline || editor.hasFocus())) {
+                        try {
+                            editor.selection.moveToBookmark(_this.valueCursor);
+                        }
+                        catch (e) { /* ignore */ }
+                    }
+                });
+            }
+            _this.rollbackTimer = undefined;
+        };
+        _this.handleBeforeInput = function (_evt) {
+            if (_this.props.value !== undefined && _this.props.value === _this.currentContent && _this.editor) {
+                if (!_this.inline || _this.editor.hasFocus) {
+                    try {
+                        // getBookmark throws exceptions when the editor has not been focused
+                        // possibly only in inline mode but I'm not taking chances
+                        _this.valueCursor = _this.editor.selection.getBookmark(3);
+                    }
+                    catch (e) { /* ignore */ }
+                }
+            }
+        };
+        _this.handleBeforeInputSpecial = function (evt) {
+            if (evt.key === 'Enter' || evt.key === 'Backspace' || evt.key === 'Delete') {
+                _this.handleBeforeInput(evt);
+            }
+        };
+        _this.handleEditorChange = function (_evt) {
+            var editor = _this.editor;
+            if (editor && editor.initialized) {
+                var newContent = editor.getContent();
+                if (_this.props.value !== undefined && _this.props.value !== newContent && _this.props.rollback !== false) {
+                    // start a timer and revert to the value if not applied in time
+                    if (!_this.rollbackTimer) {
+                        _this.rollbackTimer = window.setTimeout(_this.rollbackChange, typeof _this.props.rollback === 'number' ? _this.props.rollback : 200);
+                    }
+                }
+                if (newContent !== _this.currentContent) {
+                    _this.currentContent = newContent;
+                    if ((0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isFunction)(_this.props.onEditorChange)) {
+                        _this.props.onEditorChange(newContent, editor);
+                    }
+                }
+            }
+        };
+        _this.handleEditorChangeSpecial = function (evt) {
+            if (evt.key === 'Backspace' || evt.key === 'Delete') {
+                _this.handleEditorChange(evt);
+            }
+        };
+        _this.initialise = function (attempts) {
+            var _a, _b, _c;
+            if (attempts === void 0) { attempts = 0; }
+            var target = _this.elementRef.current;
+            if (!target) {
+                return; // Editor has been unmounted
+            }
+            if (!(0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isInDoc)(target)) {
+                // this is probably someone trying to help by rendering us offscreen
+                // but we can't do that because the editor iframe must be in the document
+                // in order to have state
+                if (attempts === 0) {
+                    // we probably just need to wait for the current events to be processed
+                    setTimeout(function () { return _this.initialise(1); }, 1);
+                }
+                else if (attempts < 100) {
+                    // wait for ten seconds, polling every tenth of a second
+                    setTimeout(function () { return _this.initialise(attempts + 1); }, 100);
+                }
+                else {
+                    // give up, at this point it seems that more polling is unlikely to help
+                    throw new Error('tinymce can only be initialised when in a document');
+                }
+                return;
+            }
+            var tinymce = (0,_TinyMCE__WEBPACK_IMPORTED_MODULE_2__.getTinymce)();
+            if (!tinymce) {
+                throw new Error('tinymce should have been loaded into global scope');
+            }
+            var finalInit = __assign(__assign({}, _this.props.init), { selector: undefined, target: target, readonly: _this.props.disabled, inline: _this.inline, plugins: (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.mergePlugins)((_a = _this.props.init) === null || _a === void 0 ? void 0 : _a.plugins, _this.props.plugins), toolbar: (_b = _this.props.toolbar) !== null && _b !== void 0 ? _b : (_c = _this.props.init) === null || _c === void 0 ? void 0 : _c.toolbar, setup: function (editor) {
+                    _this.editor = editor;
+                    _this.bindHandlers({});
+                    // When running in inline mode the editor gets the initial value
+                    // from the innerHTML of the element it is initialized on.
+                    // However we don't want to take on the responsibility of sanitizing
+                    // to remove XSS in the react integration so we have a chicken and egg
+                    // problem... We avoid it by sneaking in a set content before the first
+                    // "official" setContent and using TinyMCE to do the sanitization.
+                    if (_this.inline && !(0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isTextareaOrInput)(target)) {
+                        editor.once('PostRender', function (_evt) {
+                            editor.setContent(_this.getInitialValue(), { no_events: true });
+                        });
+                    }
+                    if (_this.props.init && (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isFunction)(_this.props.init.setup)) {
+                        _this.props.init.setup(editor);
+                    }
+                }, init_instance_callback: function (editor) {
+                    var _a, _b;
+                    // check for changes that happened since tinymce.init() was called
+                    var initialValue = _this.getInitialValue();
+                    _this.currentContent = (_a = _this.currentContent) !== null && _a !== void 0 ? _a : editor.getContent();
+                    if (_this.currentContent !== initialValue) {
+                        _this.currentContent = initialValue;
+                        // same as resetContent in TinyMCE 5
+                        editor.setContent(initialValue);
+                        editor.undoManager.clear();
+                        editor.undoManager.add();
+                        editor.setDirty(false);
+                    }
+                    var disabled = (_b = _this.props.disabled) !== null && _b !== void 0 ? _b : false;
+                    (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.setMode)(_this.editor, disabled ? 'readonly' : 'design');
+                    // ensure existing init_instance_callback is called
+                    if (_this.props.init && (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isFunction)(_this.props.init.init_instance_callback)) {
+                        _this.props.init.init_instance_callback(editor);
+                    }
+                } });
+            if (!_this.inline) {
+                target.style.visibility = '';
+            }
+            if ((0,_Utils__WEBPACK_IMPORTED_MODULE_3__.isTextareaOrInput)(target)) {
+                target.value = _this.getInitialValue();
+            }
+            tinymce.init(finalInit);
+        };
+        _this.id = _this.props.id || (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.uuid)('tiny-react');
+        _this.elementRef = react__WEBPACK_IMPORTED_MODULE_0__.createRef();
+        _this.inline = (_c = (_a = _this.props.inline) !== null && _a !== void 0 ? _a : (_b = _this.props.init) === null || _b === void 0 ? void 0 : _b.inline) !== null && _c !== void 0 ? _c : false;
+        _this.boundHandlers = {};
+        return _this;
+    }
+    Editor.prototype.componentDidUpdate = function (prevProps) {
+        var _this = this;
+        var _a, _b;
+        if (this.rollbackTimer) {
+            clearTimeout(this.rollbackTimer);
+            this.rollbackTimer = undefined;
+        }
+        if (this.editor) {
+            this.bindHandlers(prevProps);
+            if (this.editor.initialized) {
+                this.currentContent = (_a = this.currentContent) !== null && _a !== void 0 ? _a : this.editor.getContent();
+                if (typeof this.props.initialValue === 'string' && this.props.initialValue !== prevProps.initialValue) {
+                    // same as resetContent in TinyMCE 5
+                    this.editor.setContent(this.props.initialValue);
+                    this.editor.undoManager.clear();
+                    this.editor.undoManager.add();
+                    this.editor.setDirty(false);
+                }
+                else if (typeof this.props.value === 'string' && this.props.value !== this.currentContent) {
+                    var localEditor_1 = this.editor;
+                    localEditor_1.undoManager.transact(function () {
+                        // inline editors grab focus when restoring selection
+                        // so we don't try to keep their selection unless they are currently focused
+                        var cursor;
+                        if (!_this.inline || localEditor_1.hasFocus()) {
+                            try {
+                                // getBookmark throws exceptions when the editor has not been focused
+                                // possibly only in inline mode but I'm not taking chances
+                                cursor = localEditor_1.selection.getBookmark(3);
+                            }
+                            catch (e) { /* ignore */ }
+                        }
+                        var valueCursor = _this.valueCursor;
+                        localEditor_1.setContent(_this.props.value);
+                        if (!_this.inline || localEditor_1.hasFocus()) {
+                            for (var _i = 0, _a = [cursor, valueCursor]; _i < _a.length; _i++) {
+                                var bookmark = _a[_i];
+                                if (bookmark) {
+                                    try {
+                                        localEditor_1.selection.moveToBookmark(bookmark);
+                                        _this.valueCursor = bookmark;
+                                        break;
+                                    }
+                                    catch (e) { /* ignore */ }
+                                }
+                            }
+                        }
+                    });
+                }
+                if (this.props.disabled !== prevProps.disabled) {
+                    var disabled = (_b = this.props.disabled) !== null && _b !== void 0 ? _b : false;
+                    (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.setMode)(this.editor, disabled ? 'readonly' : 'design');
+                }
+            }
+        }
+    };
+    Editor.prototype.componentDidMount = function () {
+        var _a, _b, _c, _d, _e, _f;
+        if ((0,_TinyMCE__WEBPACK_IMPORTED_MODULE_2__.getTinymce)() !== null) {
+            this.initialise();
+        }
+        else if (this.elementRef.current && this.elementRef.current.ownerDocument) {
+            _ScriptLoader__WEBPACK_IMPORTED_MODULE_1__.ScriptLoader.load(this.elementRef.current.ownerDocument, this.getScriptSrc(), (_b = (_a = this.props.scriptLoading) === null || _a === void 0 ? void 0 : _a.async) !== null && _b !== void 0 ? _b : false, (_d = (_c = this.props.scriptLoading) === null || _c === void 0 ? void 0 : _c.defer) !== null && _d !== void 0 ? _d : false, (_f = (_e = this.props.scriptLoading) === null || _e === void 0 ? void 0 : _e.delay) !== null && _f !== void 0 ? _f : 0, this.initialise);
+        }
+    };
+    Editor.prototype.componentWillUnmount = function () {
+        var _this = this;
+        var editor = this.editor;
+        if (editor) {
+            editor.off(changeEvents(), this.handleEditorChange);
+            editor.off(beforeInputEvent(), this.handleBeforeInput);
+            editor.off('keypress', this.handleEditorChangeSpecial);
+            editor.off('keydown', this.handleBeforeInputSpecial);
+            editor.off('NewBlock', this.handleEditorChange);
+            Object.keys(this.boundHandlers).forEach(function (eventName) {
+                editor.off(eventName, _this.boundHandlers[eventName]);
+            });
+            this.boundHandlers = {};
+            editor.remove();
+            this.editor = undefined;
+        }
+    };
+    Editor.prototype.render = function () {
+        return this.inline ? this.renderInline() : this.renderIframe();
+    };
+    Editor.prototype.renderInline = function () {
+        var _a = this.props.tagName, tagName = _a === void 0 ? 'div' : _a;
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement(tagName, {
+            ref: this.elementRef,
+            id: this.id
+        });
+    };
+    Editor.prototype.renderIframe = function () {
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement('textarea', {
+            ref: this.elementRef,
+            style: { visibility: 'hidden' },
+            name: this.props.textareaName,
+            id: this.id
+        });
+    };
+    Editor.prototype.getScriptSrc = function () {
+        if (typeof this.props.tinymceScriptSrc === 'string') {
+            return this.props.tinymceScriptSrc;
+        }
+        else {
+            var channel = this.props.cloudChannel;
+            var apiKey = this.props.apiKey ? this.props.apiKey : 'no-api-key';
+            return "https://cdn.tiny.cloud/1/".concat(apiKey, "/tinymce/").concat(channel, "/tinymce.min.js");
+        }
+    };
+    Editor.prototype.getInitialValue = function () {
+        if (typeof this.props.initialValue === 'string') {
+            return this.props.initialValue;
+        }
+        else if (typeof this.props.value === 'string') {
+            return this.props.value;
+        }
+        else {
+            return '';
+        }
+    };
+    Editor.prototype.bindHandlers = function (prevProps) {
+        var _this = this;
+        if (this.editor !== undefined) {
+            // typescript chokes trying to understand the type of the lookup function
+            (0,_Utils__WEBPACK_IMPORTED_MODULE_3__.configHandlers)(this.editor, prevProps, this.props, this.boundHandlers, function (key) { return _this.props[key]; });
+            // check if we should monitor editor changes
+            var isValueControlled = function (p) { return p.onEditorChange !== undefined || p.value !== undefined; };
+            var wasControlled = isValueControlled(prevProps);
+            var nowControlled = isValueControlled(this.props);
+            if (!wasControlled && nowControlled) {
+                this.editor.on(changeEvents(), this.handleEditorChange);
+                this.editor.on(beforeInputEvent(), this.handleBeforeInput);
+                this.editor.on('keydown', this.handleBeforeInputSpecial);
+                this.editor.on('keyup', this.handleEditorChangeSpecial);
+                this.editor.on('NewBlock', this.handleEditorChange);
+            }
+            else if (wasControlled && !nowControlled) {
+                this.editor.off(changeEvents(), this.handleEditorChange);
+                this.editor.off(beforeInputEvent(), this.handleBeforeInput);
+                this.editor.off('keydown', this.handleBeforeInputSpecial);
+                this.editor.off('keyup', this.handleEditorChangeSpecial);
+                this.editor.off('NewBlock', this.handleEditorChange);
+            }
+        }
+    };
+    Editor.propTypes = _EditorPropTypes__WEBPACK_IMPORTED_MODULE_4__.EditorPropTypes;
+    Editor.defaultProps = {
+        cloudChannel: '6'
+    };
+    return Editor;
+}(react__WEBPACK_IMPORTED_MODULE_0__.Component));
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/EditorPropTypes.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/EditorPropTypes.js ***!
+  \**********************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "EditorPropTypes": () => (/* binding */ EditorPropTypes),
+/* harmony export */   "eventPropTypes": () => (/* binding */ eventPropTypes)
+/* harmony export */ });
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_0__);
+/**
+ * Copyright (c) 2017-present, Ephox, Inc.
+ *
+ * This source code is licensed under the Apache 2 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+
+var eventPropTypes = {
+    onActivate: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onAddUndo: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBeforeAddUndo: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBeforeExecCommand: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBeforeGetContent: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBeforeRenderUI: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBeforeSetContent: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBeforePaste: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onBlur: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onChange: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onClearUndos: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onClick: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onContextMenu: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onCopy: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onCut: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDblclick: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDeactivate: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDirty: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDrag: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDragDrop: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDragEnd: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDragGesture: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDragOver: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onDrop: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onExecCommand: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onFocus: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onFocusIn: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onFocusOut: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onGetContent: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onHide: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onInit: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onKeyDown: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onKeyPress: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onKeyUp: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onLoadContent: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseDown: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseEnter: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseLeave: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseMove: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseOut: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseOver: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onMouseUp: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onNodeChange: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onObjectResizeStart: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onObjectResized: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onObjectSelected: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onPaste: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onPostProcess: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onPostRender: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onPreProcess: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onProgressState: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onRedo: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onRemove: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onReset: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onSaveContent: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onSelectionChange: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onSetAttrib: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onSetContent: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onShow: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onSubmit: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onUndo: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onVisualAid: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onSkinLoadError: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onThemeLoadError: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onModelLoadError: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onPluginLoadError: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onIconsLoadError: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+    onLanguageLoadError: prop_types__WEBPACK_IMPORTED_MODULE_0__.func,
+};
+var EditorPropTypes = __assign({ apiKey: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, id: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, inline: prop_types__WEBPACK_IMPORTED_MODULE_0__.bool, init: prop_types__WEBPACK_IMPORTED_MODULE_0__.object, initialValue: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, onEditorChange: prop_types__WEBPACK_IMPORTED_MODULE_0__.func, value: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, tagName: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, cloudChannel: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, plugins: prop_types__WEBPACK_IMPORTED_MODULE_0__.oneOfType([prop_types__WEBPACK_IMPORTED_MODULE_0__.string, prop_types__WEBPACK_IMPORTED_MODULE_0__.array]), toolbar: prop_types__WEBPACK_IMPORTED_MODULE_0__.oneOfType([prop_types__WEBPACK_IMPORTED_MODULE_0__.string, prop_types__WEBPACK_IMPORTED_MODULE_0__.array]), disabled: prop_types__WEBPACK_IMPORTED_MODULE_0__.bool, textareaName: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, tinymceScriptSrc: prop_types__WEBPACK_IMPORTED_MODULE_0__.string, rollback: prop_types__WEBPACK_IMPORTED_MODULE_0__.oneOfType([prop_types__WEBPACK_IMPORTED_MODULE_0__.number, prop_types__WEBPACK_IMPORTED_MODULE_0__.oneOf([false])]), scriptLoading: prop_types__WEBPACK_IMPORTED_MODULE_0__.shape({
+        async: prop_types__WEBPACK_IMPORTED_MODULE_0__.bool,
+        defer: prop_types__WEBPACK_IMPORTED_MODULE_0__.bool,
+        delay: prop_types__WEBPACK_IMPORTED_MODULE_0__.number
+    }) }, eventPropTypes);
+
+
+/***/ }),
+
+/***/ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/index.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/index.js ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Editor": () => (/* reexport safe */ _components_Editor__WEBPACK_IMPORTED_MODULE_0__.Editor)
+/* harmony export */ });
+/* harmony import */ var _components_Editor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/Editor */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/components/Editor.js");
+/**
+ * Copyright (c) 2017-present, Ephox, Inc.
+ *
+ * This source code is licensed under the Apache 2 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/axios/index.js":
 /*!*************************************!*\
   !*** ./node_modules/axios/index.js ***!
@@ -9568,7 +10275,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/index.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/index.js");
 /* harmony import */ var _pages_Frontend_Home__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./pages/Frontend/Home */ "./resources/js/pages/Frontend/Home.js");
 /* harmony import */ var _pages_Guest_Login__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./pages/Guest/Login */ "./resources/js/pages/Guest/Login.js");
 /* harmony import */ var _pages_NotFound__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./pages/NotFound */ "./resources/js/pages/NotFound.js");
@@ -9584,7 +10291,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pages_Auth_Category_CategoryIndexReactTable__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./pages/Auth/Category/CategoryIndexReactTable */ "./resources/js/pages/Auth/Category/CategoryIndexReactTable.jsx");
 /* harmony import */ var _pages_Auth_Category_CategoryCreate__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./pages/Auth/Category/CategoryCreate */ "./resources/js/pages/Auth/Category/CategoryCreate.jsx");
 /* harmony import */ var _pages_Auth_Category_CategoryEdit__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./pages/Auth/Category/CategoryEdit */ "./resources/js/pages/Auth/Category/CategoryEdit.jsx");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _pages_Auth_Post_PostCreate__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./pages/Auth/Post/PostCreate */ "./resources/js/pages/Auth/Post/PostCreate.jsx");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
 
 
 
@@ -9605,53 +10314,56 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var InitApp = function InitApp() {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_contexts_user_context__WEBPACK_IMPORTED_MODULE_4__.UserContextProvider, {
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Routes, {
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_contexts_user_context__WEBPACK_IMPORTED_MODULE_4__.UserContextProvider, {
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Routes, {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
         path: "/",
-        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_components_Frontend_FrontendOutlet__WEBPACK_IMPORTED_MODULE_7__["default"], {}),
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_components_Frontend_FrontendOutlet__WEBPACK_IMPORTED_MODULE_7__["default"], {}),
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           index: true,
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Frontend_Home__WEBPACK_IMPORTED_MODULE_0__["default"], {})
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Frontend_Home__WEBPACK_IMPORTED_MODULE_0__["default"], {})
         })
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
         path: "auth",
-        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_components_Guards_GuestGuardOutlet__WEBPACK_IMPORTED_MODULE_6__["default"], {}),
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_components_Guards_GuestGuardOutlet__WEBPACK_IMPORTED_MODULE_6__["default"], {}),
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "login",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Guest_Login__WEBPACK_IMPORTED_MODULE_1__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Guest_Login__WEBPACK_IMPORTED_MODULE_1__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "forgot-password",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Guest_ResetPassword_ForgotPassword__WEBPACK_IMPORTED_MODULE_10__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Guest_ResetPassword_ForgotPassword__WEBPACK_IMPORTED_MODULE_10__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "reset-password",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Guest_ResetPassword_ResetPassword__WEBPACK_IMPORTED_MODULE_11__["default"], {})
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Guest_ResetPassword_ResetPassword__WEBPACK_IMPORTED_MODULE_11__["default"], {})
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
         path: "auth",
-        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_components_Guards_AuthGuardOutlet__WEBPACK_IMPORTED_MODULE_5__["default"], {}),
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_components_Guards_AuthGuardOutlet__WEBPACK_IMPORTED_MODULE_5__["default"], {}),
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           index: true,
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Auth_Dashboard__WEBPACK_IMPORTED_MODULE_3__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_Dashboard__WEBPACK_IMPORTED_MODULE_3__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "profile",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Auth_Profile__WEBPACK_IMPORTED_MODULE_8__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_Profile__WEBPACK_IMPORTED_MODULE_8__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "change-password",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Auth_ChangePassword__WEBPACK_IMPORTED_MODULE_9__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_ChangePassword__WEBPACK_IMPORTED_MODULE_9__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "categories",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Auth_Category_CategoryIndexReactTable__WEBPACK_IMPORTED_MODULE_12__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_Category_CategoryIndexReactTable__WEBPACK_IMPORTED_MODULE_12__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "categories/create",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Auth_Category_CategoryCreate__WEBPACK_IMPORTED_MODULE_13__["default"], {})
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_Category_CategoryCreate__WEBPACK_IMPORTED_MODULE_13__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
           path: "categories/:categoryId/edit",
-          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_Auth_Category_CategoryEdit__WEBPACK_IMPORTED_MODULE_14__["default"], {})
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_Category_CategoryEdit__WEBPACK_IMPORTED_MODULE_14__["default"], {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
+          path: "posts/create",
+          element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_Auth_Post_PostCreate__WEBPACK_IMPORTED_MODULE_15__["default"], {})
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_16__.Route, {
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_17__.Route, {
         path: "*",
-        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_15__.jsx)(_pages_NotFound__WEBPACK_IMPORTED_MODULE_2__["default"], {})
+        element: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_16__.jsx)(_pages_NotFound__WEBPACK_IMPORTED_MODULE_2__["default"], {})
       })]
     })
   });
@@ -11346,6 +12058,248 @@ function Dashboard() {
         })]
       })
     })
+  });
+}
+
+/***/ }),
+
+/***/ "./resources/js/pages/Auth/Post/PostCreate.jsx":
+/*!*****************************************************!*\
+  !*** ./resources/js/pages/Auth/Post/PostCreate.jsx ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ PostCreate)
+/* harmony export */ });
+/* harmony import */ var _utils_axios_instance__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../utils/axios-instance */ "./resources/js/utils/axios-instance.js");
+/* harmony import */ var _components_Loading__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../components/Loading */ "./resources/js/components/Loading.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/index.js");
+/* harmony import */ var react_toastify__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-toastify */ "./node_modules/react-toastify/dist/react-toastify.esm.mjs");
+/* harmony import */ var formik__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! formik */ "./node_modules/formik/dist/formik.esm.js");
+/* harmony import */ var react_bootstrap__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react-bootstrap */ "./node_modules/react-bootstrap/esm/Form.js");
+/* harmony import */ var react_bootstrap__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! react-bootstrap */ "./node_modules/react-bootstrap/esm/Button.js");
+/* harmony import */ var yup__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! yup */ "./node_modules/yup/es/index.js");
+/* harmony import */ var _hooks_useGetModel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../hooks/useGetModel */ "./resources/js/hooks/useGetModel.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _tinymce_tinymce_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @tinymce/tinymce-react */ "./node_modules/@tinymce/tinymce-react/lib/es2015/main/ts/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function PostCreate() {
+  var _categories$data;
+
+  var editorRef = (0,react__WEBPACK_IMPORTED_MODULE_6__.useRef)(null);
+  var categories = (0,_hooks_useGetModel__WEBPACK_IMPORTED_MODULE_5__["default"])("/auth/categories?paginate=100", localStorage.getItem("react_blog_auth_token"));
+  var initialValues = {
+    category_id: "",
+    title: "",
+    photo: null,
+    content: ""
+  };
+  var validationSchema = yup__WEBPACK_IMPORTED_MODULE_4__.object({
+    category_id: yup__WEBPACK_IMPORTED_MODULE_4__.number().required("The category field is required.").positive().integer(),
+    title: yup__WEBPACK_IMPORTED_MODULE_4__.string().required("The title field is required."),
+    photo: yup__WEBPACK_IMPORTED_MODULE_4__.mixed().required("The photo field is required.").test("fileSize", "File is too large. Max size 1MB.", function (value) {
+      return (value === null || value === void 0 ? void 0 : value.size) <= 1024 * 1024;
+    }).test("fileType", "Not a valid image. Supported only jpg, jpeg and png format.", function (value) {
+      return SUPPORTED_FORMATS.includes(value === null || value === void 0 ? void 0 : value.type);
+    }),
+    content: yup__WEBPACK_IMPORTED_MODULE_4__.string().required("The content field is required.")
+  });
+
+  var onSubmit = /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(values, formikHelpers) {
+      var response, _error$response, _error$response$data;
+
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.prev = 0;
+              _context.next = 3;
+              return _utils_axios_instance__WEBPACK_IMPORTED_MODULE_0__["default"].post("/auth/posts", values, {
+                headers: {
+                  Authorization: "Bearer ".concat(localStorage.getItem("react_blog_auth_token")),
+                  "Content-Type": "multipart/form-data"
+                }
+              });
+
+            case 3:
+              response = _context.sent;
+              formikHelpers.resetForm();
+              formikHelpers.setSubmitting(false);
+              react_toastify__WEBPACK_IMPORTED_MODULE_2__.toast.success(response.data.message);
+              _context.next = 13;
+              break;
+
+            case 9:
+              _context.prev = 9;
+              _context.t0 = _context["catch"](0);
+              formikHelpers.setErrors((_error$response = _context.t0.response) === null || _error$response === void 0 ? void 0 : (_error$response$data = _error$response.data) === null || _error$response$data === void 0 ? void 0 : _error$response$data.errors);
+              formikHelpers.setSubmitting(false);
+
+            case 13:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, null, [[0, 9]]);
+    }));
+
+    return function onSubmit(_x, _x2) {
+      return _ref.apply(this, arguments);
+    };
+  }();
+
+  var SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
+  var formik = (0,formik__WEBPACK_IMPORTED_MODULE_3__.useFormik)({
+    initialValues: initialValues,
+    validationSchema: validationSchema,
+    onSubmit: onSubmit
+  });
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.Fragment, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(_components_Loading__WEBPACK_IMPORTED_MODULE_1__["default"], {
+      loadingIs: formik.isSubmitting
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+      className: "container mt-3",
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("div", {
+        className: "card",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("div", {
+          className: "card-header d-block d-md-flex",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("h3", {
+            className: "flex-md-grow-1",
+            children: "New Category"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Link, {
+              to: "/auth/categories",
+              className: "btn btn-sm btn-primary",
+              children: "Category List"
+            })
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+          className: "card-body",
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"], {
+            onSubmit: formik.handleSubmit,
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("fieldset", {
+              disabled: formik.isSubmitting,
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Group, {
+                className: "mb-3",
+                controlId: "category_id",
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Label, {
+                  children: "Category"
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Select, {
+                  name: "category_id",
+                  onChange: formik.handleChange,
+                  onBlur: formik.handleBlur,
+                  value: formik.values.category_id,
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("option", {
+                    value: "",
+                    children: "None"
+                  }), categories === null || categories === void 0 ? void 0 : (_categories$data = categories.data) === null || _categories$data === void 0 ? void 0 : _categories$data.map(function (category) {
+                    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("option", {
+                      value: category.id,
+                      children: category.name
+                    }, "category_id_".concat(category.id));
+                  })]
+                }), formik.touched.category_id && formik.errors.category_id ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+                  className: "text-danger",
+                  children: formik.errors.category_id
+                }) : ""]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Group, {
+                className: "mb-3",
+                controlId: "title",
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Label, {
+                  children: "Title"
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Control, {
+                  type: "text",
+                  name: "title",
+                  onChange: formik.handleChange,
+                  onBlur: formik.handleBlur,
+                  value: formik.values.title
+                }), formik.touched.title && formik.errors.title ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+                  className: "text-danger",
+                  children: formik.errors.title
+                }) : ""]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Group, {
+                className: "mb-3",
+                controlId: "photo",
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Label, {
+                  children: "Photo"
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Control, {
+                  type: "file",
+                  name: "photo",
+                  onChange: function onChange(event) {
+                    return formik.setFieldValue("photo", event.target.files[0]);
+                  },
+                  onBlur: formik.handleBlur
+                }), formik.touched.photo && formik.errors.photo ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+                  className: "text-danger",
+                  children: formik.errors.photo
+                }) : ""]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Group, {
+                className: "mb-3",
+                controlId: "content",
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_10__["default"].Label, {
+                  children: "Content"
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(_tinymce_tinymce_react__WEBPACK_IMPORTED_MODULE_7__.Editor, {
+                  apiKey: "9czntgsnr11uo22iibcgtn0l128vwm7f2ku0cebs3y0m7zap",
+                  onInit: function onInit(evt, editor) {
+                    return editorRef.current = editor;
+                  },
+                  name: "content",
+                  id: "content",
+                  onBlur: function onBlur(event) {
+                    formik.setFieldValue("content", editorRef.current.getContent());
+                    setTimeout(function () {
+                      return formik.handleBlur(event);
+                    }, 3000);
+                  },
+                  initialValue: formik.values.content,
+                  init: {
+                    height: 500,
+                    menubar: false,
+                    plugins: ["advlist", "autolink", "lists", "link", "image", "charmap", "preview", "anchor", "searchreplace", "visualblocks", "code", "fullscreen", "insertdatetime", "media", "table", "code", "help", "wordcount"],
+                    toolbar: "undo redo | blocks | " + "bold italic forecolor | alignleft aligncenter " + "alignright alignjustify | bullist numlist outdent indent | " + "removeformat | help",
+                    content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
+                  }
+                }), formik.touched.content && formik.errors.content ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
+                  className: "text-danger",
+                  children: formik.errors.content
+                }) : ""]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_bootstrap__WEBPACK_IMPORTED_MODULE_11__["default"], {
+                variant: "primary",
+                type: "submit",
+                className: "w-100",
+                children: "Save"
+              })]
+            })
+          })
+        })]
+      })
+    })]
   });
 }
 
