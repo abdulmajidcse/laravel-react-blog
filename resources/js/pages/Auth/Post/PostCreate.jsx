@@ -11,6 +11,7 @@ import { Editor } from "@tinymce/tinymce-react";
 
 export default function PostCreate() {
     const editorRef = useRef(null);
+    const photoRef = useRef(null);
     const categories = useGetModel(
         "/auth/categories?paginate=100",
         localStorage.getItem(process.env.MIX_AUTH_TOKEN_NAME)
@@ -28,16 +29,15 @@ export default function PostCreate() {
             .integer(),
         title: Yup.string().required("The title field is required."),
         photo: Yup.mixed()
-            .required("The photo field is required.")
-            .test(
-                "fileSize",
-                "File is too large. Max size 1MB.",
-                (value) => value?.size <= 1024 * 1024
+            .nullable()
+            .test("fileSize", "File is too large. Max size 1MB.", (value) =>
+                value?.size ? value?.size <= 1024 * 1024 : true
             )
             .test(
                 "fileType",
                 "Not a valid image. Supported only jpg, jpeg and png format.",
-                (value) => SUPPORTED_FORMATS.includes(value?.type)
+                (value) =>
+                    value?.type ? SUPPORTED_FORMATS.includes(value?.type) : true
             ),
         content: Yup.string().required("The content field is required."),
     });
@@ -52,6 +52,7 @@ export default function PostCreate() {
                 },
             });
             formikHelpers.resetForm();
+            photoRef.current.value = "";
             formikHelpers.setSubmitting(false);
             toast.success(response.data.message);
         } catch (error) {
@@ -73,13 +74,13 @@ export default function PostCreate() {
             <div className="container mt-3">
                 <div className="card">
                     <div className="card-header d-block d-md-flex">
-                        <h3 className="flex-md-grow-1">New Category</h3>
+                        <h3 className="flex-md-grow-1">New Post</h3>
                         <div>
                             <Link
-                                to="/auth/categories"
+                                to="/auth/posts"
                                 className="btn btn-sm btn-primary"
                             >
-                                Category List
+                                Post List
                             </Link>
                         </div>
                     </div>
@@ -139,6 +140,8 @@ export default function PostCreate() {
                                     <Form.Control
                                         type="file"
                                         name="photo"
+                                        className="mb-2"
+                                        ref={photoRef}
                                         onChange={(event) =>
                                             formik.setFieldValue(
                                                 "photo",
@@ -147,6 +150,17 @@ export default function PostCreate() {
                                         }
                                         onBlur={formik.handleBlur}
                                     />
+                                    {SUPPORTED_FORMATS.includes(
+                                        formik.values.photo?.type ?? "None"
+                                    ) && (
+                                        <img
+                                            src={URL.createObjectURL(
+                                                formik.values.photo
+                                            )}
+                                            alt="Preview"
+                                            height={100}
+                                        />
+                                    )}
                                     {formik.touched.photo &&
                                     formik.errors.photo ? (
                                         <div className="text-danger">

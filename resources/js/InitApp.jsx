@@ -15,6 +15,7 @@ import CategoryIndexReactTable from "./pages/Auth/Category/CategoryIndexReactTab
 import CategoryCreate from "./pages/Auth/Category/CategoryCreate";
 import CategoryEdit from "./pages/Auth/Category/CategoryEdit";
 import PostCreate from "./pages/Auth/Post/PostCreate";
+import PostIndex from "./pages/Auth/Post/PostIndex";
 
 const InitApp = () => {
     return (
@@ -45,6 +46,7 @@ const InitApp = () => {
                     <Route path="categories/create" element={<CategoryCreate />} />
                     <Route path="categories/:categoryId/edit" element={<CategoryEdit />} />
                     {/* posts routes */}
+                    <Route path="posts" element={<PostIndex />} />
                     <Route path="posts/create" element={<PostCreate />} />
                 </Route>
 
