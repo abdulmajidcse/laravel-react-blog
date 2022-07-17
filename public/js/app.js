@@ -13122,7 +13122,9 @@ function PostView() {
             alt: "Preview",
             height: 100
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-            children: post.content
+            dangerouslySetInnerHTML: {
+              __html: post.content
+            }
           })]
         })]
       })

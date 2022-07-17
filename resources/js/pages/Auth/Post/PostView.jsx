@@ -64,8 +64,7 @@ export default function PostView() {
                                 height={100}
                             />
                         )}
-                        <div>{post.content}</div>
-                        {/* <div dangerouslySetInnerHTML={{_html: post.content}} /> */}
+                        <div dangerouslySetInnerHTML={{__html: post.content}} />
                     </div>
                 </div>
             </div>
