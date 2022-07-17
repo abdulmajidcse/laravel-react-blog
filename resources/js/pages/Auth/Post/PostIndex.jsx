@@ -1,7 +1,7 @@
 import axios from "../../../utils/axios-instance";
 import Loading from "../../../components/Loading";
 import { Link, useSearchParams } from "react-router-dom";
-import { Table, Button } from "react-bootstrap";
+import { Table, ButtonGroup, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 import moment from "moment";
@@ -26,6 +26,10 @@ export default function PostIndex() {
                 accessor: "title",
             },
             {
+                Header: "Category",
+                accessor: "category",
+            },
+            {
                 Header: "Created Date",
                 accessor: "created_date",
             },
@@ -43,24 +47,33 @@ export default function PostIndex() {
                 ? posts.data.map((post, index) => ({
                       sl: itemOffset + index,
                       title: post.title,
+                      category: post.category.name,
                       created_date: moment(post.created_at).format(
                           "DD-MM-YYYY LT"
                       ),
                       action: (
                           <>
-                              <Link
-                                  to={`/auth/posts/${post.id}/edit`}
-                                  className="btn btn-sm btn-primary me-1"
-                              >
-                                  Edit
-                              </Link>
-                              <Button
-                                  variant="danger"
-                                  size="sm"
-                                  onClick={() => deleteCategory(post.id)}
-                              >
-                                  Delete
-                              </Button>
+                              <ButtonGroup aria-label="Post Action">
+                                  <Link
+                                      to={`/auth/posts/${post.id}`}
+                                      className="btn btn-sm btn-success me-1"
+                                  >
+                                      View
+                                  </Link>
+                                  <Link
+                                      to={`/auth/posts/${post.id}/edit`}
+                                      className="btn btn-sm btn-primary me-1"
+                                  >
+                                      Edit
+                                  </Link>
+                                  <Button
+                                      variant="danger"
+                                      size="sm"
+                                      onClick={() => deletePost(post.id)}
+                                  >
+                                      Delete
+                                  </Button>
+                              </ButtonGroup>
                           </>
                       ),
                   }))
@@ -130,7 +143,7 @@ export default function PostIndex() {
             });
     }, [pageSize, searchParams]);
 
-    const deleteCategory = (categoryId) => {
+    const deletePost = (postId) => {
         swal({
             text: "Are you want to delete?",
             icon: "warning",
@@ -140,7 +153,7 @@ export default function PostIndex() {
             if (willDelete) {
                 setLoading(true);
                 axios
-                    .delete(`/auth/posts/${categoryId}`, {
+                    .delete(`/auth/posts/${postId}`, {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem(
                                 process.env.MIX_AUTH_TOKEN_NAME
@@ -148,12 +161,12 @@ export default function PostIndex() {
                         },
                     })
                     .then((response) => {
-                        const categoryListUpdated = posts.data?.filter(
-                            (category) => category.id !== categoryId
+                        const postListUpdated = posts.data?.filter(
+                            (post) => post.id !== postId
                         );
                         setPosts((prevposts) => ({
                             ...prevposts,
-                            data: categoryListUpdated,
+                            data: postListUpdated,
                         }));
                         toast.success(response.data.message);
                         setLoading(false);

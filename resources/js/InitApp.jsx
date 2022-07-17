@@ -16,6 +16,8 @@ import CategoryCreate from "./pages/Auth/Category/CategoryCreate";
 import CategoryEdit from "./pages/Auth/Category/CategoryEdit";
 import PostCreate from "./pages/Auth/Post/PostCreate";
 import PostIndex from "./pages/Auth/Post/PostIndex";
+import PostEdit from "./pages/Auth/Post/PostEdit";
+import PostView from "./pages/Auth/Post/PostView";
 
 const InitApp = () => {
     return (
@@ -48,6 +50,8 @@ const InitApp = () => {
                     {/* posts routes */}
                     <Route path="posts" element={<PostIndex />} />
                     <Route path="posts/create" element={<PostCreate />} />
+                    <Route path="posts/:postId" element={<PostView />} />
+                    <Route path="posts/:postId/edit" element={<PostEdit />} />
                 </Route>
 
                 {/* Not Found Route */}

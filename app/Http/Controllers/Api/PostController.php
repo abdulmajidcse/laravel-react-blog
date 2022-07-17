@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +19,7 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $posts = Post::latest('id')->paginate(intval($request->query('paginate', 10)));
+        $posts = Post::with('category')->latest('id')->paginate(intval($request->query('paginate', 10)));
         return response()->json([
             'success' => true,
             'message' => 'All posts',
@@ -81,7 +82,7 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Post details.',
-            'data' => $post,
+            'data' => Collection::make($post)->put('category', $post->category),
         ]);
     }
 
@@ -116,7 +117,7 @@ class PostController extends Controller
         $data['slug'] = Str::slug($data['title']);
 
         // photo will upload if exist
-        if (array_key_exists('photo', $data)) {
+        if (array_key_exists('photo', $data) && !is_null($data['photo'])) {
             Storage::delete($post->photo);
             $data['photo'] = Storage::putFile('', $data['photo']);
         }

@@ -37,6 +37,9 @@ export default function AuthHeader() {
                             <NavLink to="/auth/categories" className="nav-link">
                                 Category
                             </NavLink>
+                            <NavLink to="/auth/posts" className="nav-link">
+                                Post
+                            </NavLink>
                             <NavDropdown
                                 title={user.name}
                                 id="auth-header-profile"
