@@ -34,6 +34,9 @@ export default function AuthHeader() {
                             <NavLink to="/auth" className="nav-link">
                                 Dashboard
                             </NavLink>
+                            <NavLink to="/" className="nav-link">
+                                Visit Site
+                            </NavLink>
                             <NavLink to="/auth/categories" className="nav-link">
                                 Category
                             </NavLink>

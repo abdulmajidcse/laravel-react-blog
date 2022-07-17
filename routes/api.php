@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\FrontPostController;
 use App\Http\Controllers\Api\PasswordResetController;
 
 /*
@@ -16,6 +17,10 @@ use App\Http\Controllers\Api\PasswordResetController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::name('api.frontend.')->group(function() {
+    Route::get('posts', [FrontPostController::class, 'index'])->name('posts.index');
+});
 
 Route::prefix('auth')->name('api.auth.')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->name('register');
